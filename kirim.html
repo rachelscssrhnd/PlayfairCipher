@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meja sandi - Playfair</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Ruang rahasia</a><a href="kirim.html" class="on" aria-current="page">Meja sandi</a><a href="terima.html">Kotak pos</a></nav>
+<header><h1>Rumah di Jalan Misteri</h1>
+<p class="sub">Escape room bersandi Playfair: buka enam gembok, lalu kirim pesan rahasiamu sendiri.</p></header>
+
+<section id="kirim" style="margin-top:30px"><div class="paper">
+<h2>Meja sandi: tulis dan segel pesan</h2>
+<label for="sk">Kunci rahasia (sepakati dengan penerima)</label>
+<input id="sk" value="MISTERI" autocomplete="off" spellcheck="false">
+<div class="mx" id="sm"></div>
+<label for="sp">Pesan asli</label>
+<textarea id="sp" placeholder="Tulis pesanmu..." spellcheck="false"></textarea>
+<button id="enc">Enkripsi</button><button id="cpe" class="alt">Salin</button><button id="mk" class="alt">Buat link pengiriman</button>
+<div class="err" id="se"></div>
+<label>Ciphertext</label><div class="out" id="so">-</div>
+<label>Pasangan huruf setelah diproses</label><div class="out" id="sd">-</div>
+<div id="share"><label for="sl">Link pesan. Kunci tidak ikut di dalamnya, kirim lewat jalur lain.</label><input id="sl" readonly style="text-transform:none;letter-spacing:0"><button id="cpl" class="alt">Salin link</button></div>
+</div></section>
+<details class="paper" style="margin-top:20px"><summary>Cara kerja Playfair (langkah demi langkah)</summary>
+<div class="book" style="margin-top:10px"><pre>&lt;h3>Cara kerja Playfair&lt;/h3>&lt;div class="book">&lt;pre>1. Grid 5x5: tulis kunci tanpa huruf ganda, lanjutkan dengan sisa alfabet. I dan J satu sel.
+   Kunci MISTERI:
+   M I S T E
+   R A B C D
+   F G H K L
+   N O P Q U
+   V W X Y Z
+
+2. Siapkan teks: buang non-huruf, J jadi I, pecah jadi pasangan.
+   Huruf kembar dalam satu pasangan disisipi X. Jumlah ganjil ditambah X di akhir.
+   LAMPU -> LA MP UX
+
+3. Enkripsi tiap pasangan:
+   baris sama : ambil huruf di kanan (ME -> IM)
+   kolom sama : ambil huruf di bawah (SH -> BP)
+   persegi    : tukar kolom (LA -> GD)
+   LAMPU -> GDSNPZ
+
+4. Dekripsi: baris ke kiri, kolom ke atas, persegi sama seperti enkripsi.
+   X sisipan dibuang manual, program hanya menebak.
+
+Playfair adalah sandi klasik (1854) dan mudah dipecahkan komputer.
+Dipakai untuk belajar, bukan untuk melindungi data nyata.&lt;/pre>&lt;/div></pre></div></details>
+</main>
+<script src="shared.js"></script>
+<script>
+/* pengirim */
+let sp;
+function sk(){try{sp=new PF($('sk').value);mx('sm',sp);$('se').textContent='';return true}catch(e){sp=null;mx('sm');$('se').textContent=e.message;return false}}
+$('sk').oninput=sk;
+$('enc').onclick=()=>{if(!sk())return;try{const t=$('sp').value;$('so').textContent=sp.encrypt(t);
+const p=sp.prepare(t);$('sd').textContent=p.match(/../g).join(' ');$('se').textContent=''}catch(e){$('se').textContent=e.message}};
+$('cpe').onclick=e=>{const t=$('so').textContent;if(t!=='-')copy(t,e.target)};
+$('mk').onclick=()=>{const t=$('so').textContent;if(t==='-'){$('se').textContent='Enkripsi pesan dulu sebelum membuat link.';return}
+$('sl').value=new URL('terima.html',location.href).href+'#pesan='+t;$('share').style.display='block'};
+$('cpl').onclick=e=>copy($('sl').value,e.target);
+sk();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kotak pos - Playfair</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Ruang rahasia</a><a href="kirim.html">Meja sandi</a><a href="terima.html" class="on" aria-current="page">Kotak pos</a></nav>
+<header><h1>Rumah di Jalan Misteri</h1>
+<p class="sub">Escape room bersandi Playfair: buka enam gembok, lalu kirim pesan rahasiamu sendiri.</p></header>
+
+<section id="masuk" style="margin-top:30px"><div class="paper">
+<h2>Kotak pos: pesan masuk</h2>
+<div id="inc"><b>Ada surat baru lewat link.</b> Masukkan kunci untuk membukanya.</div>
+<label for="rc">Ciphertext</label>
+<textarea id="rc" placeholder="Tempel ciphertext..." spellcheck="false"></textarea>
+<label for="rk">Kunci</label>
+<input id="rk" autocomplete="off" spellcheck="false">
+<div class="mx" id="rm"></div>
+<button id="dec">Dekripsi</button><button id="cpd" class="alt">Salin</button>
+<div class="err" id="re"></div>
+<label>Hasil mentah</label><div class="out" id="rr">-</div>
+<label>Tebakan bersih (X sisipan dibuang, bisa keliru)</label><div class="out" id="rb">-</div>
+</div></section>
+</main>
+<script src="shared.js"></script>
+<script>
+/* penerima */
+let rp;
+function rk(){try{rp=new PF($('rk').value);mx('rm',rp);$('re').textContent='';return true}catch(e){rp=null;mx('rm');if($('rk').value)$('re').textContent=e.message;return false}}
+$('rk').oninput=rk;
+$('dec').onclick=()=>{if(!rk()){$('re').textContent='Masukkan kunci yang valid.';return}
+try{const r=rp.decrypt($('rc').value);$('rr').textContent=r;$('rb').textContent=clean(r);$('re').textContent=''}
+catch(e){$('re').textContent=e.message;$('rr').textContent='-';$('rb').textContent='-'}};
+$('cpd').onclick=e=>{const t=$('rb').textContent;if(t!=='-')copy(t,e.target)};
+function hash(){const m=location.hash.match(/^#pesan=([A-Za-z]+)$/);if(!m)return;
+$('rc').value=m[1].toUpperCase();$('inc').classList.add('show');$('rk').focus()}
+addEventListener('hashchange',hash);
+
+rk();hash();
+</script>
+</body>
+</html>

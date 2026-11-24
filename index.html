@@ -4,62 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rumah di Jalan Misteri - Escape Room Playfair</title>
-<style>
-:root{--wall:#161b27;--wood:#4b3322;--brass:#c8a24a;--bd:#7a6126;--paper:#e8dcc0;--ink:#2a2118;--wax:#9b2d2d;--tx:#e6dcc6}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:repeating-linear-gradient(90deg,#161b27 0 46px,#1a2030 46px 92px);color:var(--tx);font:17px/1.6 Georgia,"Times New Roman",serif;padding:0 14px 70px}
-main{max-width:820px;margin:0 auto}
-nav{position:sticky;top:0;z-index:5;background:#161b27;display:flex;flex-wrap:wrap;gap:4px 22px;padding:14px 0;border-bottom:2px solid var(--bd)}
-a{color:var(--brass)}a:hover{color:#fff}
-:focus-visible{outline:2px solid #fff;outline-offset:2px}
-header{padding:34px 0 8px;background:radial-gradient(ellipse 60% 100% at 50% 0,rgba(255,196,100,.16),transparent)}
-h1{font-size:clamp(26px,6vw,42px);font-weight:400;font-style:italic;color:#f3e7c9}
-.sub{color:#a99f88}
-h2{font-size:22px;font-weight:400;font-style:italic;color:#f3e7c9;margin-bottom:10px}
-h3{font-size:18px;font-weight:400;color:var(--brass);margin:6px 0}
-section{margin-top:46px}
-.room{border:12px solid var(--wood);outline:2px solid #2a1c12;background:#10141e;padding:18px;box-shadow:inset 0 0 60px rgba(0,0,0,.7)}
-.bar{display:flex;justify-content:space-between;align-items:flex-end;color:#a99f88}
-#prog{display:flex;gap:12px}
-.lk{display:block;width:22px;height:17px;margin-top:11px;background:#555;border-radius:2px;position:relative}
-.lk::before{content:"";position:absolute;left:3px;top:-10px;width:12px;height:11px;border:3px solid #555;border-bottom:0;border-radius:8px 8px 0 0}
-.lk.now{background:var(--brass)}.lk.now::before{border-color:var(--brass)}
-.lk.done{background:var(--bd)}.lk.done::before{border-color:var(--bd);transform:translate(7px,-3px) rotate(28deg)}
-#log{height:150px;overflow-y:auto;margin:10px 0;padding:8px 12px;border-left:3px solid var(--bd);background:rgba(0,0,0,.25);font-size:15px}
-#log p{margin-bottom:6px}.ok{color:#9fd08a}.amb{color:#f0c36a}
-.pair{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin:14px 0}
-.note{flex:1 1 250px;background:var(--paper);color:var(--ink);padding:14px 16px;font-family:"Courier New",monospace;box-shadow:3px 4px 0 rgba(0,0,0,.5);transform:rotate(-1deg)}
-.note b{display:block;font-size:clamp(20px,5vw,28px);letter-spacing:.3em;word-break:break-all;margin-top:4px}
-.grid{flex:0 0 auto}
-.mx{display:grid;grid-template-columns:repeat(5,34px);gap:2px;border:3px solid var(--bd);padding:4px;background:#0b0e15;margin-top:4px}
-.mx span{text-align:center;line-height:32px;height:34px;background:#1d2434;font-family:"Courier New",monospace;color:#f3e7c9}
-label{display:block;margin:14px 0 4px;color:#a99f88;font-size:15px}
-input,textarea{width:100%;font:inherit;padding:8px 10px;border-radius:2px;text-transform:uppercase;letter-spacing:.1em}
-.room input{background:#2a2113;color:#f3e7c9;border:2px solid var(--brass);font-family:"Courier New",monospace;font-size:20px;letter-spacing:.25em}
-.paper{background:var(--paper);color:var(--ink);padding:18px 20px;border-top:6px solid var(--wax);box-shadow:3px 4px 0 rgba(0,0,0,.5)}
-.paper label{color:#6b5d44}.paper h2{color:var(--ink)}
-.paper input,.paper textarea{background:#f7f0dc;color:var(--ink);border:1px solid #8a7a58;font-family:"Courier New",monospace}
-textarea{min-height:76px;resize:vertical}
-button{font:inherit;font-size:15px;background:var(--brass);color:#241a08;border:0;border-bottom:3px solid var(--bd);border-radius:3px;padding:6px 14px;margin:12px 10px 0 0;cursor:pointer}
-button:hover{background:#e2bd62}
-button.alt{background:transparent;color:var(--brass);border:1px solid var(--brass)}
-.paper button.alt{color:#5a4511;border-color:#5a4511}
-.err{min-height:1.5em;margin-top:8px;color:#ff8a7a}.paper .err{color:#9b2d2d}
-.out{border:1px dashed #8a7a58;padding:8px;margin:4px 0 8px;min-height:2.4em;word-break:break-all;font-family:"Courier New",monospace;letter-spacing:.2em}
-.paper .mx{border-color:#8a7a58;background:#c9bc9a}.paper .mx span{background:#e8dcc0;color:var(--ink)}
-.book{background:#241a12;border:1px solid var(--bd);padding:16px 20px;background-image:repeating-linear-gradient(transparent 0 26px,rgba(200,162,74,.12) 26px 27px)}
-pre{white-space:pre-wrap;font:15px/27px "Courier New",monospace;color:#e6dcc6}
-.hintbox{margin-top:12px;padding:8px 12px;border-left:3px solid var(--brass);background:rgba(200,162,74,.14);color:#f0c36a}.hintbox:empty{display:none}.nv{background:none;border:0;color:var(--brass);text-decoration:underline;padding:0;margin:0;font:inherit;cursor:pointer}.nv:hover{background:none;color:#fff}
-dialog{margin:auto;max-width:640px;width:calc(100% - 24px);max-height:86vh;overflow:auto;background:#241a12;color:var(--tx);border:6px solid var(--wood);outline:2px solid var(--brass);padding:18px 20px}
-dialog::backdrop{background:rgba(5,7,12,.82)}dialog h2{color:#f3e7c9}dialog ol{padding-left:22px;margin-bottom:10px}
-#share,#inc{display:none}
-#inc.show{display:block}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<nav><a href="#misi">Ruang rahasia</a><a href="#kirim">Meja sandi</a><a href="#masuk">Kotak pos</a><button id="pbtn" class="nv">Buku panduan</button></nav>
+<nav><a href="index.html" class="on" aria-current="page">Ruang rahasia</a><a href="kirim.html">Meja sandi</a><a href="terima.html">Kotak pos</a><button id="pbtn" class="nv">Buku panduan</button></nav>
 <header><h1>Rumah di Jalan Misteri</h1>
 <p class="sub">Escape room bersandi Playfair: buka enam gembok, lalu kirim pesan rahasiamu sendiri.</p></header>
 
@@ -87,47 +36,22 @@ dialog::backdrop{background:rgba(5,7,12,.82)}dialog h2{color:#f3e7c9}dialog ol{p
 </div>
 <div id="win" hidden>
 <h3>Pintu terbuka, kamu bebas.</h3>
-<p>Pak Misteri muncul dari balik pintu: "Kamu membaca sandiku dengan baik. Sekarang balaslah. Tulis pesanmu di Meja sandi, kirim lewat link, dan jangan lupa kuncinya."</p>
+<p>Pak Misteri muncul dari balik pintu: "Kamu membaca sandiku dengan baik. Sekarang balaslah. Tulis pesanmu di <a href="kirim.html">Meja sandi</a>, kirim lewat link, dan jangan lupa kuncinya."</p>
+<p>Kode keluar: <span class="xc" id="xc"></span></p>
 <p>Waktu: <b id="wt"></b>. Petunjuk dipakai: <b id="wh"></b>.</p>
+<p class="best" id="wb"></p>
 <button id="again">Main lagi</button>
 </div>
 </div>
 </section>
-
-<section id="kirim"><div class="paper">
-<h2>Meja sandi: tulis dan segel pesan</h2>
-<label for="sk">Kunci rahasia (sepakati dengan penerima)</label>
-<input id="sk" value="MISTERI" autocomplete="off" spellcheck="false">
-<div class="mx" id="sm"></div>
-<label for="sp">Pesan asli</label>
-<textarea id="sp" placeholder="Tulis pesanmu..." spellcheck="false"></textarea>
-<button id="enc">Enkripsi</button><button id="cpe" class="alt">Salin</button><button id="mk" class="alt">Buat link pengiriman</button>
-<div class="err" id="se"></div>
-<label>Ciphertext</label><div class="out" id="so">-</div>
-<label>Pasangan huruf setelah diproses</label><div class="out" id="sd">-</div>
-<div id="share"><label for="sl">Link pesan. Kunci tidak ikut di dalamnya, kirim lewat jalur lain.</label><input id="sl" readonly style="text-transform:none;letter-spacing:0"><button id="cpl" class="alt">Salin link</button></div>
-</div></section>
-
-<section id="masuk"><div class="paper">
-<h2>Kotak pos: pesan masuk</h2>
-<div id="inc"><b>Ada surat baru lewat link.</b> Masukkan kunci untuk membukanya.</div>
-<label for="rc">Ciphertext</label>
-<textarea id="rc" placeholder="Tempel ciphertext..." spellcheck="false"></textarea>
-<label for="rk">Kunci</label>
-<input id="rk" autocomplete="off" spellcheck="false">
-<div class="mx" id="rm"></div>
-<button id="dec">Dekripsi</button><button id="cpd" class="alt">Salin</button>
-<div class="err" id="re"></div>
-<label>Hasil mentah</label><div class="out" id="rr">-</div>
-<label>Tebakan bersih (X sisipan dibuang, bisa keliru)</label><div class="out" id="rb">-</div>
-</div></section>
 
 <dialog id="gd" aria-labelledby="gt"><h2 id="gt">Buku panduan</h2>
 <h3>Cara bermain</h3>
 <ol><li>Tiap ruangan punya kertas sandi. Bacalah dengan grid MISTERI di sebelahnya.</li>
 <li>Ketik hasil dekripsi tanpa spasi lalu tekan Buka gembok. X di akhir jawaban boleh dibuang.</li>
 <li>Petunjuk boleh diminta kapan saja, jumlahnya dicatat di akhir permainan.</li>
-<li>Setelah keluar, pakai Meja sandi untuk mengirim pesan rahasiamu sendiri.</li></ol>
+<li>Di kamar terakhir kamu mendapat kode keluar. Tunjukkan ke teman sekelas sebagai bukti.</li>
+<li>Setelah keluar, pakai halaman Meja sandi untuk mengirim pesan rahasiamu sendiri.</li></ol>
 <h3>Cara kerja Playfair</h3><div class="book"><pre>1. Grid 5x5: tulis kunci tanpa huruf ganda, lanjutkan dengan sisa alfabet. I dan J satu sel.
    Kunci MISTERI:
    M I S T E
@@ -153,28 +77,8 @@ Playfair adalah sandi klasik (1854) dan mudah dipecahkan komputer.
 Dipakai untuk belajar, bukan untuk melindungi data nyata.</pre></div>
 <button id="gclose">Tutup</button></dialog>
 </main>
+<script src="shared.js"></script>
 <script>
-const $=i=>document.getElementById(i);
-const norm=s=>s.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');
-class PF{
-constructor(k){this.key=norm(k);if(!this.key)throw new Error('Kunci harus berisi minimal satu huruf.');
-const L=[...new Set(this.key)];for(let i=65;i<91;i++){const c=String.fromCharCode(i);if(c!=='J'&&!L.includes(c))L.push(c)}
-this.m=[];this.p={};for(let r=0;r<5;r++){this.m[r]=[];for(let c=0;c<5;c++){const h=L[r*5+c];this.m[r][c]=h;this.p[h]={r,c}}}}
-prepare(t){t=norm(t);let o='';for(let i=0;i<t.length;i++){o+=t[i];if(i+1<t.length){if(t[i]===t[i+1])o+=(t[i]==='X'?'Q':'X');else{o+=t[i+1];i++}}}if(o.length%2)o+=(o[o.length-1]==='X'?'Q':'X');return o}
-tr(t,d){let o='';for(let i=0;i<t.length;i+=2){const a=this.p[t[i]],b=this.p[t[i+1]],m=this.m;
-if(a.r===b.r){o+=m[a.r][(a.c+d+5)%5]+m[b.r][(b.c+d+5)%5]}
-else if(a.c===b.c){o+=m[(a.r+d+5)%5][a.c]+m[(b.r+d+5)%5][b.c]}
-else o+=m[a.r][b.c]+m[b.r][a.c]}return o}
-encrypt(t){const p=this.prepare(t);if(!p)throw new Error('Pesan harus berisi minimal satu huruf.');return this.tr(p,1)}
-decrypt(t){const c=norm(t);if(!c)throw new Error('Ciphertext kosong.');if(c.length%2)throw new Error('Ciphertext tidak valid: jumlah huruf harus genap.');
-for(let i=0;i<c.length;i+=2)if(c[i]===c[i+1])throw new Error('Ciphertext tidak valid: ada pasangan huruf kembar ('+c[i]+c[i+1]+').');
-return this.tr(c,-1)}}
-const clean=s=>{let o='';for(let i=0;i<s.length;i++){if(s[i]==='X'&&i>0&&i<s.length-1&&s[i-1]===s[i+1])continue;o+=s[i]}return o.replace(/X$/,'')};
-function mx(id,pf){const e=$(id);e.innerHTML='';if(!pf)return;pf.m.forEach(r=>r.forEach(h=>{const s=document.createElement('span');s.textContent=h;e.appendChild(s)}))}
-function copy(t,btn){const done=()=>{const o=btn.textContent;btn.textContent='Tersalin';setTimeout(()=>btn.textContent=o,1200)};
-if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,()=>fb(t,done));else fb(t,done)}
-function fb(t,done){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){}a.remove()}
-
 /* jawaban disimpan sebagai hash, bukan teks */
 function H(s){let a=0xdeadbeef,b=0x41c6ce57;s='ctc:'+s;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}
 a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return(4294967296*(2097151&b)+(a>>>0)).toString(16)}
@@ -186,13 +90,15 @@ const ROOMS=[
 {t:'Ruang Cermin',d:'Catatan menyebut benda kaca yang bisa membuka rahasia ruangan.',c:'DTFRMO',h:'54040f63ea4ed',hi:['Benda yang memantulkan bayangan.','Biasanya ada di lemari rias.','6 huruf.'],n:'Cermin memantulkan tulisan di dinding: sebuah gambar kompas.'},
 {t:'Ruang Kompas',d:'Tulisan di dinding menunjukkan arah menuju pintu keluar.',c:'QEBABW',h:'3d8114e1043dc',hi:['Salah satu mata angin.','Lawan dari selatan.','5 huruf.'],n:'Pintu keluar ketemu di dinding itu, tetapi terkunci kode digital.'},
 {t:'Pintu Keluar',d:'Satu kode terakhir terpasang di pintu.',c:'DSCBBS',h:'133f402f178ac8',hi:['Keadaan setelah keluar dari sini.','Lawan kata dari terjebak.','5 huruf, artinya free.'],n:''}];
-let cur=0,hi=0,used=0,t0=0,tick=null,lock=false;
+let cur=0,hi=0,used=0,t0=0,tick=null,lock=false,got=[];
 const log=(m,c)=>{const p=document.createElement('p');p.textContent=m;if(c)p.className=c;$('log').appendChild(p);$('log').scrollTop=1e9};
-const clock=()=>{const s=Math.floor((Date.now()-t0)/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const secs=()=>Math.floor((Date.now()-t0)/1000);
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const clock=()=>{const s=secs();return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 function load(){const r=ROOMS[cur];hi=0;lock=false;$('ct').textContent=r.c;$('rt').textContent='Ruangan '+(cur+1)+': '+r.t;$('ans').value='';$('fb').textContent='';$('hb').textContent='';hintUI();
 $('prog').innerHTML=ROOMS.map((_,i)=>'<i class="lk '+(i<cur?'done':i==cur?'now':'')+'"></i>').join('');
 log(r.t+': '+r.d);$('ans').focus()}
-function begin(){cur=0;used=0;t0=Date.now();clearInterval(tick);tick=setInterval(()=>$('timer').textContent='Waktu '+clock(),1000);
+function begin(){cur=0;used=0;got=[];t0=Date.now();clearInterval(tick);tick=setInterval(()=>$('timer').textContent='Waktu '+clock(),1000);
 $('intro').hidden=true;$('win').hidden=true;$('game').hidden=false;$('log').innerHTML='';mx('gm',KEY);load()}
 const gd=$('gd');let seen=0,pend=0;
 const openG=()=>{$('gclose').textContent=pend?'Mengerti, mulai misi':'Tutup';gd.showModal()};
@@ -203,39 +109,17 @@ gd.addEventListener('close',()=>{if(pend){pend=0;begin()}});
 gd.addEventListener('click',e=>{if(e.target===gd)gd.close()});
 function submit(){if(lock)return;const a=norm($('ans').value),f=$('fb'),r=ROOMS[cur];
 if(!a){f.className='err';f.textContent='Jawaban kosong. Ketik hasil dekripsi dulu.';return}
-if(H(a)===r.h||H(a.replace(/X$/,''))===r.h){f.className='err ok';f.textContent='Gembok terbuka.';lock=true;
+if(H(a)===r.h||H(a.replace(/X$/,''))===r.h){f.className='err ok';f.textContent='Gembok terbuka.';lock=true;got.push(a.replace(/X$/,''));
 if(cur<ROOMS.length-1){log(r.n,'ok');setTimeout(()=>{cur++;load()},900)}
-else setTimeout(()=>{clearInterval(tick);$('game').hidden=true;$('win').hidden=false;$('wt').textContent=clock();$('wh').textContent=used},700)}
+else setTimeout(()=>{clearInterval(tick);const s=secs();$('game').hidden=true;$('win').hidden=false;$('wt').textContent=fmt(s);$('wh').textContent=used;$('xc').textContent=got.map(x=>x[0]).join('');
+let b=null;try{b=+localStorage.getItem('pf-best')||null}catch(e){}
+const nb=!b||s<b;if(nb){try{localStorage.setItem('pf-best',s)}catch(e){}b=s}
+$('wb').textContent=(nb?'Rekor baru! ':'')+'Waktu terbaik di perangkat ini: '+fmt(b)},700)}
 else{f.className='err';f.textContent='Gembok tidak terbuka. "'+a+'" bukan jawabannya. Cek lagi grid sandi dan aturannya.'}}
 $('sub').onclick=submit;$('ans').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
 const hintUI=()=>{$('hint').textContent='Minta petunjuk ('+(ROOMS[cur].hi.length-hi)+')'};
 $('hint').onclick=()=>{const r=ROOMS[cur];let m;if(hi<r.hi.length){m='Petunjuk '+(hi+1)+' dari '+r.hi.length+': '+r.hi[hi];hi++;used++}else m='Petunjuk habis. Pakai grid sandi dan aturan di buku panduan.';$('hb').textContent=m;log(m,'amb');hintUI()};
 $('again').onclick=()=>{$('timer').textContent='Waktu 00:00';$('start').click()};
-
-/* pengirim */
-let sp;
-function sk(){try{sp=new PF($('sk').value);mx('sm',sp);$('se').textContent='';return true}catch(e){sp=null;mx('sm');$('se').textContent=e.message;return false}}
-$('sk').oninput=sk;
-$('enc').onclick=()=>{if(!sk())return;try{const t=$('sp').value;$('so').textContent=sp.encrypt(t);
-const p=sp.prepare(t);$('sd').textContent=p.match(/../g).join(' ');$('se').textContent=''}catch(e){$('se').textContent=e.message}};
-$('cpe').onclick=e=>{const t=$('so').textContent;if(t!=='-')copy(t,e.target)};
-$('mk').onclick=()=>{const t=$('so').textContent;if(t==='-'){$('se').textContent='Enkripsi pesan dulu sebelum membuat link.';return}
-$('sl').value=location.href.split('#')[0]+'#pesan='+t;$('share').style.display='block'};
-$('cpl').onclick=e=>copy($('sl').value,e.target);
-
-/* penerima */
-let rp;
-function rk(){try{rp=new PF($('rk').value);mx('rm',rp);$('re').textContent='';return true}catch(e){rp=null;mx('rm');if($('rk').value)$('re').textContent=e.message;return false}}
-$('rk').oninput=rk;
-$('dec').onclick=()=>{if(!rk()){$('re').textContent='Masukkan kunci yang valid.';return}
-try{const r=rp.decrypt($('rc').value);$('rr').textContent=r;$('rb').textContent=clean(r);$('re').textContent=''}
-catch(e){$('re').textContent=e.message;$('rr').textContent='-';$('rb').textContent='-'}};
-$('cpd').onclick=e=>{const t=$('rb').textContent;if(t!=='-')copy(t,e.target)};
-function hash(){const m=location.hash.match(/^#pesan=([A-Za-z]+)$/);if(!m)return;
-$('rc').value=m[1].toUpperCase();$('inc').classList.add('show');$('masuk').scrollIntoView();$('rk').focus()}
-addEventListener('hashchange',hash);
-
-sk();rk();hash();
 </script>
 </body>
 </html>
