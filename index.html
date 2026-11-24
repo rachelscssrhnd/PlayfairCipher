@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 Crack the Code: Escape Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a1a;
+      --bg2: #111128;
+      --card: rgba(18,18,45,0.85);
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --accent: #00ff88;
+      --accent-g: rgba(0,255,136,0.25);
+      --cyan: #00d4ff;
+      --cyan-g: rgba(0,212,255,0.25);
+      --orange: #ff6b35;
+      --orange-g: rgba(255,107,53,0.25);
+      --red: #ff4466;
+      --gold: #ffd700;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── particles ── */
+    #particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .dot {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) scale(1); opacity: 0; }
+      10%  { opacity: .6; }
+      90%  { opacity: .2; }
+      100% { transform: translateY(-110vh) scale(.4); opacity: 0; }
+    }
+
+    /* ── screens ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp .55s ease-out;
+    }
+    .screen.active { display: flex; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 640px;
+      width: 100%;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
+    }
+
+    /* ── typography ── */
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem,6vw,3.6rem);
+      letter-spacing: .12em;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: none;
+      margin-bottom: .4rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--cyan);
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ── buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .85rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #00cc6a);
+      color: #0a0a1a;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px var(--accent-g);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.14);
+      transform: translateY(-2px);
+    }
+    .btn-orange {
+      background: linear-gradient(135deg, var(--orange), #e05520);
+      color: #fff;
+    }
+    .btn-orange:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px var(--orange-g);
+    }
+    .btn-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ── matrix grid ── */
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(5,1fr);
+      gap: 5px;
+      max-width: 320px;
+      margin: 1.2rem auto;
+    }
+    .mcell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1;
+      background: rgba(0,255,136,.07);
+      border: 1px solid rgba(0,255,136,.25);
+      border-radius: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      transition: all .25s;
+      user-select: none;
+    }
+    .mcell:hover {
+      background: rgba(0,255,136,.18);
+      transform: scale(1.12);
+      box-shadow: 0 0 16px var(--accent-g);
+    }
+    .mcell.highlight {
+      background: rgba(0,212,255,.25);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: scale(1.1);
+    }
+
+    /* ── cipher display ── */
+    .cipher-box {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(1.4rem,4vw,2.2rem);
+      letter-spacing: .4em;
+      color: var(--orange);
+      text-shadow: 0 0 20px var(--orange-g);
+      padding: 1.4rem;
+      background: rgba(255,107,53,.08);
+      border: 1px solid rgba(255,107,53,.3);
+      border-radius: 14px;
+      text-align: center;
+      margin: 1.2rem 0;
+      word-break: break-all;
+    }
+
+    /* ── input ── */
+    .input-group { margin-top: 1.5rem; }
+    .input-group label {
+      display: block;
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%;
+      padding: .85rem 1rem;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.1rem;
+      letter-spacing: .15em;
+      outline: none;
+      transition: all .25s;
+    }
+    .input-group input:focus, .input-group textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan-g);
+    }
+    .input-group textarea { resize: vertical; min-height: 80px; }
+    .input-group select { cursor: pointer; letter-spacing: 0; }
+
+    /* ── feedback ── */
+    .feedback {
+      margin-top: 1rem;
+      padding: .8rem 1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+    }
+    .feedback.show { display: block; animation: fadeUp .3s ease-out; }
+    .feedback.error {
+      background: rgba(255,68,102,.12);
+      border: 1px solid rgba(255,68,102,.3);
+      color: var(--red);
+    }
+    .feedback.success {
+      background: rgba(0,255,136,.12);
+      border: 1px solid rgba(0,255,136,.3);
+      color: var(--accent);
+    }
+
+    /* ── hint ── */
+    .hint-box {
+      margin-top: .8rem;
+      padding: .75rem 1rem;
+      background: rgba(0,212,255,.08);
+      border: 1px solid rgba(0,212,255,.2);
+      border-radius: 10px;
+      color: var(--cyan);
+      font-size: .95rem;
+      display: none;
+    }
+    .hint-box.show { display: block; animation: fadeUp .3s ease-out; }
+
+    /* ── progress ── */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1.5rem;
+    }
+    .prog-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--muted);
+      background: transparent;
+      transition: all .3s;
+    }
+    .prog-dot.done { background: var(--accent); border-color: var(--accent); }
+    .prog-dot.active { border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-g); }
+    .prog-line {
+      width: 40px; height: 2px;
+      background: rgba(255,255,255,.15);
+    }
+
+    /* ── timer ── */
+    .timer-bar {
+      position: fixed;
+      top: 1rem; right: 1.5rem;
+      z-index: 10;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.2rem;
+      color: var(--cyan);
+      background: var(--card);
+      border: 1px solid rgba(0,212,255,.25);
+      padding: .5rem 1rem;
+      border-radius: 10px;
+      display: none;
+    }
+    .timer-bar.show { display: block; }
+
+    /* ── matrix toggle ── */
+    .matrix-toggle {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+      padding: .5rem;
+      transition: color .2s;
+    }
+    .matrix-toggle:hover { color: var(--cyan); }
+    .matrix-wrapper { display: none; }
+    .matrix-wrapper.open { display: block; }
+
+    /* ── victory ── */
+    .victory-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: bounce 1s ease-in-out infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-12px); }
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255,255,255,.05);
+      border-radius: 12px;
+    }
+    .stat-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+    .stat-label { font-size: .85rem; color: var(--muted); margin-top: .25rem; }
+
+    /* ── confetti ── */
+    #confetti {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 100;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px; height: 10px;
+      top: -20px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── tools section ── */
+    .tool-tabs {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .tool-tab {
+      padding: .6rem 1.2rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .9rem;
+      transition: all .2s;
+    }
+    .tool-tab.active {
+      background: rgba(0,212,255,.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+    .tool-panel { display: none; }
+    .tool-panel.active { display: block; }
+
+    .output-box {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.3rem;
+      letter-spacing: .3em;
+      padding: 1.2rem;
+      background: rgba(0,255,136,.06);
+      border: 1px solid rgba(0,255,136,.25);
+      border-radius: 12px;
+      color: var(--accent);
+      text-align: center;
+      word-break: break-all;
+      min-height: 50px;
+      margin-top: .5rem;
+    }
+
+    /* ── how-it-works ── */
+    .step-block {
+      padding: 1rem;
+      margin: .8rem 0;
+      background: rgba(255,255,255,.04);
+      border-left: 3px solid var(--cyan);
+      border-radius: 0 10px 10px 0;
+    }
+    .step-block h4 { color: var(--cyan); margin-bottom: .5rem; }
+    .step-block code {
+      background: rgba(255,255,255,.1);
+      padding: .15em .4em;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .95em;
+    }
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .8rem;
+      margin: 1rem 0;
+    }
+    .rule-card {
+      padding: 1rem;
+      background: rgba(255,255,255,.04);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .rule-card h5 { color: var(--orange); margin-bottom: .4rem; }
+
+    /* ── header nav ── */
+    .top-nav {
+      position: fixed;
+      top: 1rem; left: 1.5rem;
+      z-index: 10;
+      display: none;
+    }
+    .top-nav.show { display: flex; gap: .5rem; }
+    .nav-pill {
+      padding: .4rem .8rem;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .85rem;
+      transition: all .2s;
+    }
+    .nav-pill:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+
+    /* ── footer ── */
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .8rem;
+      margin-top: 2rem;
+      opacity: .6;
+    }
+
+    /* ── shake animation ── */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60% { transform: translateX(-8px); }
+      40%,80% { transform: translateX(8px); }
+    }
+    .shake { animation: shake .4s ease-in-out; }
+
+    /* ── responsive ── */
+    @media (max-width: 600px) {
+      .card { padding: 1.5rem 1.2rem; }
+      .cipher-box { font-size: 1.2rem; letter-spacing: .25em; padding: 1rem; }
+      .mcell { font-size: 1rem; }
+      .stat-grid { grid-template-columns: 1fr; }
+      .timer-bar { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- Timer -->
+<div class="timer-bar" id="timer">⏱ 00:00</div>
+
+<!-- Top Nav -->
+<div class="top-nav" id="topnav">
+  <div class="nav-pill" onclick="showScreen('tools')">🔧 Alat</div>
+  <div class="nav-pill" onclick="showScreen('howto')">📖 Cara Kerja</div>
+</div>
+
+<!-- Confetti container -->
+<div id="confetti"></div>
+
+<!-- ═══════════ SCREEN: TITLE ═══════════ -->
+<div id="screen-title" class="screen active">
+  <div style="text-align:center;">
+    <div style="font-size:4.5rem;margin-bottom:.5rem;">🔐</div>
+    <h1>CRACK THE CODE</h1>
+    <p class="subtitle">Escape Room &middot; Playfair Cipher Challenge</p>
+    <button class="btn btn-primary" onclick="showScreen('intro')" style="font-size:1.15rem;padding:1rem 3rem;">
+      MULAI PERMAINAN
+    </button>
+    <div class="footer" style="margin-top:3rem;">
+      Mata Kuliah Kriptografi &middot; FTMM Unair<br>
+      Algoritma: Playfair Cipher
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: INTRO ═══════════ -->
+<div id="screen-intro" class="screen">
+  <div class="card">
+    <h2>📖 Cerita</h2>
+    <p style="line-height:1.8;margin-bottom:.5rem;">
+      Kamu adalah seorang mahasiswa yang menemukan <strong>ruangan rahasia</strong> di perpustakaan kampus.
+      Saat masuk, pintu di belakangmu <strong>terkunci otomatis</strong>.
+    </p>
+    <p style="line-height:1.8;margin-bottom:.5rem;">
+      Di dinding terdapat sebuah catatan:
+    </p>
+    <blockquote style="border-left:3px solid var(--orange);padding:.8rem 1rem;margin:1rem 0;background:rgba(255,107,53,.08);border-radius:0 10px 10px 0;font-style:italic;color:var(--orange);">
+      "Untuk keluar, pecahkan 3 kode rahasia menggunakan <strong>Playfair Cipher</strong>. Kunci ada di depan matamu."
+    </blockquote>
+    <p style="line-height:1.8;">
+      Kamu melihat sebuah <strong>tabel 5×5</strong> tergantung di dinding — matriks Playfair dari kata kunci
+      <strong style="color:var(--accent);">MISTERI</strong>.
+    </p>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <button class="btn btn-primary" onclick="showScreen('matrix-reveal')">LIHAT MATRIKS →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: MATRIX REVEAL ═══════════ -->
+<div id="screen-matrix-reveal" class="screen">
+  <div class="card" style="text-align:center;">
+    <h2>🔑 Kunci Ditemukan!</h2>
+    <p>Kata Kunci: <strong style="color:var(--accent);font-size:1.3rem;letter-spacing:.2em;">MISTERI</strong></p>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:.5rem;">Matriks Playfair 5×5 (I/J digabung)</p>
+    <div class="matrix" id="reveal-matrix"></div>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:1rem;">
+      Gunakan matriks ini untuk mendekripsi pesan di setiap ruangan.<br>
+      Ingat 3 aturan: <strong>baris sama</strong>, <strong>kolom sama</strong>, dan <strong>persegi panjang</strong>.
+    </p>
+    <div style="margin-top:1.5rem;">
+      <button class="btn btn-primary" onclick="startGame()">MASUK RUANGAN PERTAMA →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: ROOM ═══════════ -->
+<div id="screen-room" class="screen">
+  <div class="card">
+    <!-- Progress -->
+    <div class="progress-bar" id="progress"></div>
+
+    <h2 id="room-title"></h2>
+    <p id="room-desc" style="line-height:1.7;margin-bottom:.5rem;"></p>
+
+    <p style="color:var(--muted);font-size:.9rem;">Pesan terenkripsi:</p>
+    <div class="cipher-box" id="cipher-text"></div>
+
+    <!-- Matrix toggle -->
+    <div class="matrix-toggle" onclick="toggleRoomMatrix()">
+      📋 <span id="matrix-toggle-text">Tampilkan Matriks</span>
+    </div>
+    <div class="matrix-wrapper" id="matrix-wrapper">
+      <div class="matrix" id="room-matrix"></div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-group">
+      <label for="answer">Jawaban (hasil dekripsi, tanpa spasi):</label>
+      <input type="text" id="answer" placeholder="Ketik jawaban..." autocomplete="off">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="submitAnswer()">SUBMIT</button>
+      <button class="btn btn-secondary" onclick="showHint()">💡 Petunjuk</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="hint-box" id="hint-box"></div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: TRANSITION ═══════════ -->
+<div id="screen-transition" class="screen">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:.5rem;">✅</div>
+    <h2 id="trans-title" style="color:var(--accent);">BENAR!</h2>
+    <p id="trans-text" style="line-height:1.8;margin:1rem 0;"></p>
+    <button class="btn btn-primary" onclick="nextRoom()">LANJUTKAN →</button>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: VICTORY ═══════════ -->
+<div id="screen-victory" class="screen">
+  <div class="card" style="text-align:center;">
+    <div class="victory-icon">🎉</div>
+    <h1 style="font-size:clamp(1.6rem,5vw,2.8rem);">KAMU BERHASIL KELUAR!</h1>
+    <p style="color:var(--muted);margin:.5rem 0 1rem;">Selamat! Kamu telah memecahkan semua kode Playfair Cipher.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-time">00:00</div>
+        <div class="stat-label">Waktu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-hints">0</div>
+        <div class="stat-label">Petunjuk Digunakan</div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="justify-content:center;">
+      <button class="btn btn-primary" onclick="resetGame()">🔄 Main Lagi</button>
+      <button class="btn btn-orange" onclick="showScreen('tools')">🔧 Alat Enkripsi</button>
+      <button class="btn btn-secondary" onclick="showScreen('howto')">📖 Cara Kerja</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: TOOLS ═══════════ -->
+<div id="screen-tools" class="screen">
+  <div class="card" style="max-width:720px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+      <h2 style="margin-bottom:0;">🔧 Alat Playfair Cipher</h2>
+      <button class="btn btn-secondary" onclick="goBack()" style="padding:.5rem 1rem;font-size:.85rem;">← Kembali</button>
+    </div>
+    <p style="color:var(--muted);margin-bottom:1.2rem;">Gunakan untuk game tebak pesan di kelas!</p>
+
+    <!-- Key input -->
+    <div class="input-group">
+      <label for="tool-key">Kata Kunci:</label>
+      <input type="text" id="tool-key" value="MISTERI" placeholder="Masukkan kata kunci...">
+    </div>
+    <div class="matrix" id="tool-matrix" style="margin-bottom:1.5rem;"></div>
+
+    <!-- Mode tabs -->
+    <div class="tool-tabs">
+      <div class="tool-tab active" data-mode="encrypt" onclick="switchToolMode('encrypt')">🔒 Enkripsi</div>
+      <div class="tool-tab" data-mode="decrypt" onclick="switchToolMode('decrypt')">🔓 Dekripsi</div>
+    </div>
+
+    <!-- Encrypt panel -->
+    <div class="tool-panel active" id="panel-encrypt">
+      <div class="input-group">
+        <label for="tool-plain">Teks Asli (Plaintext):</label>
+        <textarea id="tool-plain" placeholder="Ketik pesan rahasia..." rows="3"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="toolEncrypt()">Enkripsi →</button>
+        <button class="btn btn-secondary" onclick="toolCopy('encrypt')">📋 Salin Hasil</button>
+      </div>
+      <div class="input-group" style="margin-top:1rem;">
+        <label>Hasil Enkripsi:</label>
+        <div class="output-box" id="encrypt-result">—</div>
+      </div>
+      <div class="input-group">
+        <label style="font-size:.8rem;color:var(--muted);">Teks setelah diproses (digraph):</label>
+        <div style="font-family:'Share Tech Mono',monospace;color:var(--muted);font-size:.9rem;" id="encrypt-prepared">—</div>
+      </div>
+    </div>
+
+    <!-- Decrypt panel -->
+    <div class="tool-panel" id="panel-decrypt">
+      <div class="input-group">
+        <label for="tool-cipher">Teks Terenkripsi (Ciphertext):</label>
+        <textarea id="tool-cipher" placeholder="Ketik ciphertext..." rows="3"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="toolDecrypt()">Dekripsi →</button>
+        <button class="btn btn-secondary" onclick="toolCopy('decrypt')">📋 Salin Hasil</button>
+      </div>
+      <div class="input-group" style="margin-top:1rem;">
+        <label>Hasil Dekripsi:</label>
+        <div class="output-box" id="decrypt-result">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: HOW IT WORKS ═══════════ -->
+<div id="screen-howto" class="screen">
+  <div class="card" style="max-width:720px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+      <h2 style="margin-bottom:0;">📖 Cara Kerja Playfair Cipher</h2>
+      <button class="btn btn-secondary" onclick="goBack()" style="padding:.5rem 1rem;font-size:.85rem;">← Kembali</button>
+    </div>
+
+    <div class="step-block">
+      <h4>Langkah 1: Buat Matriks 5×5</h4>
+      <p>Tulis huruf-huruf dari <strong>kata kunci</strong> (tanpa duplikat), lalu tambahkan sisa alfabet.
+      Huruf <code>I</code> dan <code>J</code> digabung jadi satu sel.</p>
+      <p style="margin-top:.5rem;">Contoh dengan kunci <code>MISTERI</code>:</p>
+      <p style="font-family:'Share Tech Mono',monospace;color:var(--accent);margin-top:.4rem;line-height:1.8;">
+        M I S T E<br>R A B C D<br>F G H K L<br>N O P Q U<br>V W X Y Z
+      </p>
+    </div>
+
+    <div class="step-block">
+      <h4>Langkah 2: Siapkan Plaintext</h4>
+      <p>1. Hapus spasi dan karakter non-huruf<br>
+         2. Ganti <code>J</code> → <code>I</code><br>
+         3. Bagi jadi pasangan 2 huruf (digraph)<br>
+         4. Jika sepasang hurufnya sama, sisipkan <code>X</code><br>
+         5. Jika panjang ganjil, tambahkan <code>X</code> di akhir</p>
+      <p style="margin-top:.5rem;">Contoh: <code>LAMPU</code> → <code>LA MP UX</code></p>
+    </div>
+
+    <div class="step-block">
+      <h4>Langkah 3: Terapkan 3 Aturan Enkripsi</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h5>Aturan 1: Baris Sama →</h5>
+          <p>Ganti tiap huruf dengan huruf <strong>di sebelah kanannya</strong> (bungkus ke awal jika di ujung).</p>
+          <p style="font-family:'Share Tech Mono',monospace;color:var(--accent);margin-top:.3rem;">ME → IM</p>
+        </div>
+        <div class="rule-card">
+          <h5>Aturan 2: Kolom Sama ↓</h5>
+          <p>Ganti tiap huruf dengan huruf <strong>di bawahnya</strong> (bungkus ke atas jika di ujung).</p>
+          <p style="font-family:'Share Tech Mono',monospace;color:var(--accent);margin-top:.3rem;">SH → BP</p>
+        </div>
+        <div class="rule-card">
+          <h5>Aturan 3: Persegi Panjang ◻</h5>
+          <p>Ganti tiap huruf dengan huruf <strong>di baris yang sama tapi kolom pasangannya</strong>.</p>
+          <p style="font-family:'Share Tech Mono',monospace;color:var(--accent);margin-top:.3rem;">LA → GD</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <h4>Langkah 4: Dekripsi (Kebalikan)</h4>
+      <p>• Baris sama → geser <strong>ke kiri</strong><br>
+         • Kolom sama → geser <strong>ke atas</strong><br>
+         • Persegi panjang → <strong>sama dengan enkripsi</strong> (tukar kolom)</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Contoh Lengkap</h4>
+      <p>Kunci: <code>MISTERI</code> &nbsp;|&nbsp; Plaintext: <code>LAMPU</code></p>
+      <p style="margin-top:.4rem;">Persiapan: <code>LAMPU</code> → <code>LA MP UX</code> (tambah X karena ganjil)</p>
+      <p style="margin-top:.4rem;">
+        <code>LA</code> → persegi panjang → <code>GD</code><br>
+        <code>MP</code> → persegi panjang → <code>SN</code><br>
+        <code>UX</code> → persegi panjang → <code>PZ</code>
+      </p>
+      <p style="margin-top:.4rem;">Ciphertext: <strong style="color:var(--orange);">GDSNPZ</strong></p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════
+//  PLAYFAIR CIPHER ENGINE
+// ═══════════════════════════════════════════
+class PlayfairCipher {
+  constructor(key) {
+    this.key = key.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');
+    this.matrix = [];
+    this.pos = {};
+    this._build();
+  }
+
+  _build() {
+    const seen = new Set();
+    const letters = [];
+    for (const c of this.key) {
+      if (!seen.has(c)) { seen.add(c); letters.push(c); }
+    }
+    for (let i = 0; i < 26; i++) {
+      const c = String.fromCharCode(65+i);
+      if (c === 'J' || seen.has(c)) continue;
+      letters.push(c);
+    }
+    this.matrix = [];
+    this.pos = {};
+    for (let r = 0; r < 5; r++) {
+      this.matrix[r] = [];
+      for (let c = 0; c < 5; c++) {
+        const ch = letters[r*5+c];
+        this.matrix[r][c] = ch;
+        this.pos[ch] = {r, c};
+      }
+    }
+  }
+
+  prepare(text) {
+    text = text.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');
+    let out = '';
+    let i = 0;
+    while (i < text.length) {
+      out += text[i];
+      if (i+1 < text.length) {
+        if (text[i] === text[i+1]) { out += 'X'; }
+        else { out += text[i+1]; i++; }
+      }
+      i++;
+    }
+    if (out.length % 2 !== 0) out += 'X';
+    return out;
+  }
+
+  encrypt(plaintext) {
+    const p = this.prepare(plaintext);
+    let res = '';
+    for (let i = 0; i < p.length; i += 2) {
+      const a = this.pos[p[i]], b = this.pos[p[i+1]];
+      if (a.r === b.r) {
+        res += this.matrix[a.r][(a.c+1)%5];
+        res += this.matrix[b.r][(b.c+1)%5];
+      } else if (a.c === b.c) {
+        res += this.matrix[(a.r+1)%5][a.c];
+        res += this.matrix[(b.r+1)%5][b.c];
+      } else {
+        res += this.matrix[a.r][b.c];
+        res += this.matrix[b.r][a.c];
+      }
+    }
+    return res;
+  }
+
+  decrypt(ciphertext) {
+    const ct = ciphertext.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');
+    let res = '';
+    for (let i = 0; i < ct.length; i += 2) {
+      const a = this.pos[ct[i]], b = this.pos[ct[i+1]];
+      if (a.r === b.r) {
+        res += this.matrix[a.r][(a.c+4)%5];
+        res += this.matrix[b.r][(b.c+4)%5];
+      } else if (a.c === b.c) {
+        res += this.matrix[(a.r+4)%5][a.c];
+        res += this.matrix[(b.r+4)%5][b.c];
+      } else {
+        res += this.matrix[a.r][b.c];
+        res += this.matrix[b.r][a.c];
+      }
+    }
+    return res;
+  }
+
+  getMatrix() { return this.matrix; }
+}
+
+// ═══════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════
+const KEY = 'MISTERI';
+const cipher = new PlayfairCipher(KEY);
+
+const ROOMS = [
+  {
+    title: '🔦 Ruang Gelap',
+    desc: 'Kamu terbangun di ruangan yang gelap gulita. Hanya ada secercah cahaya dari celah pintu. Di atas meja ada secarik kertas lusuh dengan deretan huruf aneh...',
+    cipher: 'GDSNPZ',
+    answer: 'LAMPU',
+    hints: [
+      '💡 Kamu membutuhkan cahaya untuk melihat seisi ruangan...',
+      '💡 Benda yang menghasilkan cahaya di dalam ruangan...',
+      '💡 Jawabannya 5 huruf: alat penerangan di langit-langit'
+    ],
+    transTitle: '💡 Lampu Menyala!',
+    transDesc: 'Kamu menemukan saklar lampu! Ruangan menjadi terang dan ternyata kamu berada di sebuah ruang kerja tua penuh rak buku. Di meja kerja ada catatan berikutnya...'
+  },
+  {
+    title: '📚 Ruang Kerja',
+    desc: 'Lampu menyala memperlihatkan ruangan penuh rak buku berdebu. Di meja kerja, di antara tumpukan kertas, ada catatan lain dengan kode misterius...',
+    cipher: 'DPLQIMABPS',
+    answer: 'BUKUMERAH',
+    hints: [
+      '💡 Lihat rak buku di sekeliling ruangan ini...',
+      '💡 Ada satu buku yang berbeda — warnanya mencolok di antara yang lain...',
+      '💡 Dua kata tanpa spasi: nama benda + warnanya (9 huruf)'
+    ],
+    transTitle: '📕 Buku Ditemukan!',
+    transDesc: 'Kamu menarik buku merah dari rak dan di dalamnya ada sebuah peta tua. Peta itu menunjukkan lokasi sebuah benda tersembunyi di ruangan ini...'
+  },
+  {
+    title: '🗝️ Ruang Tersembunyi',
+    desc: 'Peta di buku merah menunjukkan ada sesuatu tersembunyi di balik dinding. Kamu menemukan pesan lain yang harus dipecahkan untuk menemukan benda itu...',
+    cipher: 'GQICHY',
+    answer: 'KOTAK',
+    hints: [
+      '💡 Di dalam buku merah ada gambar sebuah benda...',
+      '💡 Benda berbentuk persegi yang bisa menyimpan sesuatu...',
+      '💡 5 huruf, tempat menyimpan barang berharga'
+    ],
+    transTitle: '📦 Kotak Ditemukan!',
+    transDesc: 'Di balik bata yang longgar, kamu menemukan sebuah kotak kayu tua! Di dalamnya ada catatan tentang benda kaca misterius di ruangan sebelah...'
+  },
+  {
+    title: '🪞 Ruang Cermin',
+    desc: 'Di dalam kotak ada petunjuk tentang sebuah benda kaca di ruangan yang bisa mengungkap rahasia. Pecahkan kode ini untuk menemukan benda itu...',
+    cipher: 'DTFRMO',
+    answer: 'CERMIN',
+    hints: [
+      '💡 Di dalam kotak ada benda yang bisa memantulkan bayangan...',
+      '💡 Benda kaca yang bisa menunjukkan wajahmu...',
+      '💡 6 huruf, biasanya ada di kamar mandi atau lemari rias'
+    ],
+    transTitle: '🪞 Cermin Ditemukan!',
+    transDesc: 'Kamu menemukan cermin besar di sudut ruangan! Saat diarahkan ke dinding, cermin itu memantulkan sebuah tulisan tersembunyi dengan kode baru dan sebuah kompas...'
+  },
+  {
+    title: '🧭 Ruang Kompas',
+    desc: 'Cermin memantulkan tulisan tersembunyi di dinding. Di samping tulisan itu ada gambar kompas. Pecahkan kode ini untuk mengetahui arah mana yang harus kamu tuju...',
+    cipher: 'QEBABW',
+    answer: 'UTARA',
+    hints: [
+      '💡 Cermin memantulkan sebuah tulisan di dinding... tentang arah...',
+      '💡 Salah satu dari 4 mata angin...',
+      '💡 5 huruf, arah yang berlawanan dengan selatan'
+    ],
+    transTitle: '🧭 Arah Ditemukan!',
+    transDesc: 'Kamu berjalan ke dinding utara dan menemukan pintu keluar yang tersembunyi! Tapi pintunya terkunci dengan kunci digital. Satu kode lagi untuk melarikan diri!'
+  },
+  {
+    title: '🚪 Pintu Keluar',
+    desc: 'Ini dia — pintu terakhir menuju kebebasan! Kunci digital di pintu memerlukan satu kode final. Di dinding ada pesan terenkripsi terakhir. Pecahkan dan kamu akan...',
+    cipher: 'DSCBBS',
+    answer: 'BEBAS',
+    hints: [
+      '💡 Kata ini menggambarkan keadaan setelah kamu keluar dari sini...',
+      '💡 Lawan kata dari "terjebak" atau "terkunci"...',
+      '💡 5 huruf, artinya "free" dalam bahasa Inggris'
+    ],
+    transTitle: null,
+    transDesc: null
+  }
+];
+
+let currentRoom = 0;
+let hintIdx = 0;
+let hintsUsed = 0;
+let startTime = null;
+let timerInterval = null;
+let prevScreen = 'title';
+
+// ═══════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['var(--accent)','var(--cyan)','var(--orange)','#fff'];
+  for (let i = 0; i < 50; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.left = Math.random()*100+'%';
+    d.style.top = (80+Math.random()*20)+'%';
+    d.style.background = colors[Math.floor(Math.random()*colors.length)];
+    d.style.width = d.style.height = (1+Math.random()*2)+'px';
+    d.style.animationDuration = (8+Math.random()*14)+'s';
+    d.style.animationDelay = Math.random()*10+'s';
+    container.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  SCREEN NAVIGATION
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-'+id);
+  if (target) {
+    target.classList.remove('active');
+    // Force re-trigger animation
+    void target.offsetWidth;
+    target.classList.add('active');
+  }
+
+  // Track previous screen for back nav
+  if (!['tools','howto'].includes(id)) prevScreen = id;
+
+  // Show/hide nav pills
+  const nav = document.getElementById('topnav');
+  const showNav = !['title'].includes(id);
+  nav.classList.toggle('show', showNav);
+}
+
+function goBack() {
+  // If game is running, go back to room
+  if (startTime && currentRoom < ROOMS.length) {
+    showScreen('room');
+  } else if (startTime) {
+    showScreen('victory');
+  } else {
+    showScreen('title');
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MATRIX RENDERING
+// ═══════════════════════════════════════════
+function renderMatrix(containerId, pf) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  const m = (pf || cipher).getMatrix();
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'mcell';
+      cell.textContent = m[r][c];
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+      el.appendChild(cell);
+    }
+  }
+}
+
+function toggleRoomMatrix() {
+  const w = document.getElementById('matrix-wrapper');
+  const t = document.getElementById('matrix-toggle-text');
+  w.classList.toggle('open');
+  t.textContent = w.classList.contains('open') ? 'Sembunyikan Matriks' : 'Tampilkan Matriks';
+}
+
+// ═══════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════
+function startTimer() {
+  startTime = Date.now();
+  const el = document.getElementById('timer');
+  el.classList.add('show');
+  timerInterval = setInterval(() => {
+    const s = Math.floor((Date.now()-startTime)/1000);
+    const mm = String(Math.floor(s/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    el.textContent = '⏱ '+mm+':'+ss;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  const s = Math.floor((Date.now()-startTime)/1000);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return mm+':'+ss;
+}
+
+// ═══════════════════════════════════════════
+//  PROGRESS BAR
+// ═══════════════════════════════════════════
+function renderProgress() {
+  const el = document.getElementById('progress');
+  el.innerHTML = '';
+  for (let i = 0; i < ROOMS.length; i++) {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'prog-line';
+      el.appendChild(line);
+    }
+    const dot = document.createElement('div');
+    dot.className = 'prog-dot';
+    if (i < currentRoom) dot.classList.add('done');
+    if (i === currentRoom) dot.classList.add('active');
+    el.appendChild(dot);
+  }
+  const label = document.createElement('span');
+  label.style.cssText = 'margin-left:.8rem;color:var(--muted);font-size:.85rem;';
+  label.textContent = 'Ruangan '+(currentRoom+1)+'/'+ROOMS.length;
+  el.appendChild(label);
+}
+
+// ═══════════════════════════════════════════
+//  GAME LOGIC
+// ═══════════════════════════════════════════
+function startGame() {
+  currentRoom = 0;
+  hintIdx = 0;
+  hintsUsed = 0;
+  startTimer();
+  loadRoom();
+  showScreen('room');
+}
+
+function loadRoom() {
+  const room = ROOMS[currentRoom];
+  hintIdx = 0;
+  document.getElementById('room-title').textContent = room.title;
+  document.getElementById('room-desc').textContent = room.desc;
+  document.getElementById('cipher-text').textContent = room.cipher;
+  document.getElementById('answer').value = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('hint-box').className = 'hint-box';
+  document.getElementById('hint-box').textContent = '';
+  document.getElementById('matrix-wrapper').classList.remove('open');
+  document.getElementById('matrix-toggle-text').textContent = 'Tampilkan Matriks';
+  renderMatrix('room-matrix');
+  renderProgress();
+}
+
+function submitAnswer() {
+  const input = document.getElementById('answer').value.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');
+  const fb = document.getElementById('feedback');
+  const room = ROOMS[currentRoom];
+
+  if (!input) {
+    fb.className = 'feedback show error';
+    fb.textContent = '⚠️ Masukkan jawaban terlebih dahulu!';
+    document.getElementById('answer').classList.add('shake');
+    setTimeout(() => document.getElementById('answer').classList.remove('shake'), 400);
+    return;
+  }
+
+  // Accept answer with or without trailing X
+  const expected = room.answer.replace(/J/g,'I');
+  if (input === expected || input === expected+'X') {
+    fb.className = 'feedback show success';
+    fb.textContent = '✅ Jawaban benar: ' + room.answer;
+
+    if (currentRoom < ROOMS.length - 1) {
+      // Show transition
+      setTimeout(() => {
+        document.getElementById('trans-title').textContent = room.transTitle;
+        document.getElementById('trans-text').textContent = room.transDesc;
+        showScreen('transition');
+      }, 800);
+    } else {
+      // Victory!
+      setTimeout(() => victory(), 800);
+    }
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = '❌ Jawaban salah. Coba lagi! (kamu memasukkan: ' + input + ')';
+    document.getElementById('answer').classList.add('shake');
+    setTimeout(() => document.getElementById('answer').classList.remove('shake'), 400);
+  }
+}
+
+function nextRoom() {
+  currentRoom++;
+  loadRoom();
+  showScreen('room');
+}
+
+function showHint() {
+  const room = ROOMS[currentRoom];
+  const hb = document.getElementById('hint-box');
+  if (hintIdx < room.hints.length) {
+    hb.className = 'hint-box show';
+    hb.textContent = room.hints[hintIdx];
+    hintIdx++;
+    hintsUsed++;
+  } else {
+    hb.className = 'hint-box show';
+    hb.textContent = '💡 Tidak ada petunjuk lagi. Gunakan matriks dan aturan Playfair!';
+  }
+}
+
+function victory() {
+  const time = stopTimer();
+  document.getElementById('stat-time').textContent = time;
+  document.getElementById('stat-hints').textContent = hintsUsed;
+  showScreen('victory');
+  createConfetti();
+}
+
+function resetGame() {
+  document.getElementById('timer').classList.remove('show');
+  clearInterval(timerInterval);
+  startTime = null;
+  showScreen('title');
+}
+
+// ═══════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════
+function createConfetti() {
+  const c = document.getElementById('confetti');
+  c.innerHTML = '';
+  const colors = ['#00ff88','#00d4ff','#ffd700','#ff6b35','#ff44ff','#fff'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const size = 6+Math.random()*8;
+    p.style.width = size+'px';
+    p.style.height = size*(0.4+Math.random()*0.6)+'px';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.borderRadius = Math.random()>.5?'50%':'2px';
+    p.style.animationDuration = (2+Math.random()*3)+'s';
+    p.style.animationDelay = Math.random()*2+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 6000);
+}
+
+// ═══════════════════════════════════════════
+//  TOOLS
+// ═══════════════════════════════════════════
+let toolCipher = new PlayfairCipher(KEY);
+
+function updateToolMatrix() {
+  const keyVal = document.getElementById('tool-key').value;
+  if (!keyVal.replace(/[^a-zA-Z]/g,'')) return;
+  toolCipher = new PlayfairCipher(keyVal);
+  renderMatrix('tool-matrix', toolCipher);
+}
+
+function switchToolMode(mode) {
+  document.querySelectorAll('.tool-tab').forEach(t => t.classList.toggle('active', t.dataset.mode===mode));
+  document.getElementById('panel-encrypt').classList.toggle('active', mode==='encrypt');
+  document.getElementById('panel-decrypt').classList.toggle('active', mode==='decrypt');
+}
+
+function toolEncrypt() {
+  updateToolMatrix();
+  const plain = document.getElementById('tool-plain').value;
+  if (!plain.replace(/[^a-zA-Z]/g,'')) return;
+  const prepared = toolCipher.prepare(plain);
+  const result = toolCipher.encrypt(plain);
+  document.getElementById('encrypt-result').textContent = result;
+  // Show prepared text with spaces between digraphs
+  let disp = '';
+  for (let i = 0; i < prepared.length; i+=2) {
+    disp += prepared.substr(i,2) + ' ';
+  }
+  document.getElementById('encrypt-prepared').textContent = disp.trim();
+}
+
+function toolDecrypt() {
+  updateToolMatrix();
+  const ct = document.getElementById('tool-cipher').value;
+  if (!ct.replace(/[^a-zA-Z]/g,'')) return;
+  const result = toolCipher.decrypt(ct);
+  document.getElementById('decrypt-result').textContent = result;
+}
+
+function toolCopy(mode) {
+  const el = document.getElementById(mode==='encrypt'?'encrypt-result':'decrypt-result');
+  const text = el.textContent;
+  if (text === '—') return;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = el.textContent;
+    el.textContent = '📋 Tersalin!';
+    el.style.color = 'var(--cyan)';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1200);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  KEY INPUT LISTENER (tool)
+// ═══════════════════════════════════════════
+document.getElementById('tool-key').addEventListener('input', updateToolMatrix);
+
+// ═══════════════════════════════════════════
+//  KEYBOARD: Enter to submit
+// ═══════════════════════════════════════════
+document.getElementById('answer').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAnswer();
+});
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+createParticles();
+renderMatrix('reveal-matrix');
+renderMatrix('tool-matrix', toolCipher);
+</script>
+</body>
+</html>
