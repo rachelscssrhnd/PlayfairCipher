@@ -52,3 +52,4 @@ nav a.on{color:#fff;border-bottom:2px solid var(--brass)}
 details{margin-top:16px}summary{cursor:pointer;color:#5a4511}
 .xc{font:700 26px 'Courier New',monospace;letter-spacing:.3em;color:#f3e7c9}
 .best{color:#a99f88;font-size:15px}
+.mx{width:max-content;max-width:100%}
