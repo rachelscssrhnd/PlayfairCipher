@@ -54,6 +54,7 @@ pre{white-space:pre-wrap;font:15px/27px "Courier New",monospace;color:#e6dcc6}
 dialog{margin:auto;max-width:640px;width:calc(100% - 24px);max-height:86vh;overflow:auto;background:#241a12;color:var(--tx);border:6px solid var(--wood);outline:2px solid var(--brass);padding:18px 20px}
 dialog::backdrop{background:rgba(5,7,12,.82)}dialog h2{color:#f3e7c9}dialog ol{padding-left:22px;margin-bottom:10px}
 #share,#inc{display:none}
+#inc.show{display:block}
 </style>
 </head>
 <body>
@@ -159,12 +160,12 @@ class PF{
 constructor(k){this.key=norm(k);if(!this.key)throw new Error('Kunci harus berisi minimal satu huruf.');
 const L=[...new Set(this.key)];for(let i=65;i<91;i++){const c=String.fromCharCode(i);if(c!=='J'&&!L.includes(c))L.push(c)}
 this.m=[];this.p={};for(let r=0;r<5;r++){this.m[r]=[];for(let c=0;c<5;c++){const h=L[r*5+c];this.m[r][c]=h;this.p[h]={r,c}}}}
-prepare(t){t=norm(t);let o='';for(let i=0;i<t.length;i++){o+=t[i];if(i+1<t.length){if(t[i]===t[i+1])o+='X';else{o+=t[i+1];i++}}}if(o.length%2)o+='X';return o}
+prepare(t){t=norm(t);let o='';for(let i=0;i<t.length;i++){o+=t[i];if(i+1<t.length){if(t[i]===t[i+1])o+=(t[i]==='X'?'Q':'X');else{o+=t[i+1];i++}}}if(o.length%2)o+=(o[o.length-1]==='X'?'Q':'X');return o}
 tr(t,d){let o='';for(let i=0;i<t.length;i+=2){const a=this.p[t[i]],b=this.p[t[i+1]],m=this.m;
 if(a.r===b.r){o+=m[a.r][(a.c+d+5)%5]+m[b.r][(b.c+d+5)%5]}
 else if(a.c===b.c){o+=m[(a.r+d+5)%5][a.c]+m[(b.r+d+5)%5][b.c]}
 else o+=m[a.r][b.c]+m[b.r][a.c]}return o}
-encrypt(t){const p=this.prepare(t);if(!p.replace(/X/g,''))throw new Error('Pesan harus berisi minimal satu huruf.');return this.tr(p,1)}
+encrypt(t){const p=this.prepare(t);if(!p)throw new Error('Pesan harus berisi minimal satu huruf.');return this.tr(p,1)}
 decrypt(t){const c=norm(t);if(!c)throw new Error('Ciphertext kosong.');if(c.length%2)throw new Error('Ciphertext tidak valid: jumlah huruf harus genap.');
 for(let i=0;i<c.length;i+=2)if(c[i]===c[i+1])throw new Error('Ciphertext tidak valid: ada pasangan huruf kembar ('+c[i]+c[i+1]+').');
 return this.tr(c,-1)}}
@@ -231,7 +232,7 @@ try{const r=rp.decrypt($('rc').value);$('rr').textContent=r;$('rb').textContent=
 catch(e){$('re').textContent=e.message;$('rr').textContent='-';$('rb').textContent='-'}};
 $('cpd').onclick=e=>{const t=$('rb').textContent;if(t!=='-')copy(t,e.target)};
 function hash(){const m=location.hash.match(/^#pesan=([A-Za-z]+)$/);if(!m)return;
-$('rc').value=m[1].toUpperCase();$('inc').hidden=false;$('masuk').scrollIntoView();$('rk').focus()}
+$('rc').value=m[1].toUpperCase();$('inc').classList.add('show');$('masuk').scrollIntoView();$('rk').focus()}
 addEventListener('hashchange',hash);
 
 sk();rk();hash();
