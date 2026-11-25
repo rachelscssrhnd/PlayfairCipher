@@ -87,7 +87,7 @@ function H(s){let a=0xdeadbeef,b=0x41c6ce57;s='ctc:'+s;for(let i=0;i<s.length;i+
 a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return(4294967296*(2097151&b)+(a>>>0)).toString(16)}
 const KEY=new PF('MISTERI');
 const deskNav=$('deskNav');
-const setDeskNav=()=>{let open=false;try{open=sessionStorage.getItem('pf-desk-unlocked')==='1'}catch(e){}deskNav.textContent=open?'Meja Tulis':'Meja Tulis 🔒'};
+const setDeskNav=()=>{deskNav.textContent='Meja Tulis'};
 setDeskNav();
 if(new URLSearchParams(location.search).get('locked')==='meja'){$('gateMessage').hidden=false;$('gateMessage').textContent='Meja Tulis masih terkunci. Selesaikan dulu keenam ruangan dan buka semua gembok.'}
 const GUIDE_ALPHABET='MISTERABCDFGHKLNOPQUVWXYZ';
