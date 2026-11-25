@@ -8,7 +8,7 @@
 </head>
 <body>
 <main>
-<nav><a href="index.html" class="on" aria-current="page">Ruang rahasia</a><a href="kirim.html">Meja sandi</a><a href="terima.html">Kotak pos</a><button id="pbtn" class="nv">Buku panduan</button></nav>
+<nav><a href="index.html" class="on" aria-current="page">Ruang rahasia</a><a href="kirim.html" id="deskNav">Meja sandi 🔒</a><a href="terima.html">Kotak pos</a><button id="pbtn" class="nv">Buku panduan</button></nav>
 <header><h1>Rumah di Jalan Misteri</h1>
 <p class="sub">Sebuah escape room tentang pesan rahasia, pilihan sulit, dan keberanian membalas.</p></header>
 
@@ -18,8 +18,9 @@
 <div id="intro">
 <h3>Prolog: surat tanpa pengirim</h3>
 <p>Hujan mengantarmu ke sebuah rumah tua di Jalan Misteri nomor 13. Surat tanpa nama memintamu datang sebelum malam. Baru saja kamu masuk, pintu mengunci sendiri dan sebuah mesin tik mulai bergerak di ruangan gelap.</p>
-<p>Di atas kertas muncul pesan: "Aku Pak Misteri. Enam pesan akan membawamu ke ruang surat keluargaku. Kunci sandi rumah ini MISTERI. Setelah menemukannya, pilih seseorang yang ingin kamu kirimi pesan rahasia." Dari balik dinding terdengar bunyi jam yang terus berdetak.</p>
-<p>Pecahkan enam pesan untuk menemukan meja tulis rahasia. Di sana kamu akan memilih kunci dan pesanmu sendiri, mengenkripsikannya dengan tangan, lalu memeriksa hasilnya sebelum mengirim surat.</p>
+<p>Di atas kertas muncul pesan: "Aku Pak Misteri. Kunci sandi rumah ini MISTERI. Buka semua ruangan, lalu tolong kirim kabar untuk keluargaku." Dari balik dinding terdengar bunyi jam yang terus berdetak.</p>
+<p>Pecahkan enam pesan untuk membuka semua gembok. Setelah itu, meja tulis rahasia terbuka dan Pak Misteri akan memberikan pesan yang perlu kamu enkripsikan sendiri.</p>
+<p id="gateMessage" class="field-note" role="status" hidden></p>
 <button id="start">Mulai</button><button id="pb0" class="alt">Baca panduan</button>
 </div>
 <div id="game" hidden>
@@ -44,8 +45,8 @@
 <ol><li>Baca pesan di tiap ruangan menggunakan grid MISTERI. Cari kata yang cocok dengan cerita.</li>
 <li>Ketik hasil dekripsi tanpa spasi, lalu tekan Buka gembok. Spasi dan tanda baca diabaikan; X sisipan di akhir boleh dihilangkan.</li>
 <li>Petunjuk menjelaskan langkah sandi untuk pesan yang sedang kamu pecahkan. Jumlah yang dipakai dicatat.</li>
-<li>Enam pesan akan membuka meja sandi. Di sana kamu membuat grid dengan kata kunci pilihanmu, menulis pesan, lalu mengetik hasil enkripsi sendiri untuk diperiksa.</li>
-<li>Jika hasil benar, kirim ciphertext lewat Kotak Pos. Pemain lain membuka link dan memakai kunci yang kamu kirim terpisah.</li></ol>
+<li>Meja Sandi tetap terkunci sampai keenam ruangan selesai. Di sana Pak Misteri menitipkan pesan “AKU AMAN” untuk keluarganya. Pilih kata kunci, buat grid, lalu enkripsikan pesan itu.</li>
+<li>Checker memeriksa ciphertext pasangan demi pasangan. Setelah benar, kirim link ciphertext lewat Kotak Pos dan sampaikan kunci grid secara terpisah.</li></ol>
 <h3>Cara kerja Playfair</h3><div class="book"><pre>1. Grid 5x5: tulis kunci tanpa huruf ganda, lanjutkan dengan sisa alfabet. I dan J memakai satu kotak.
    Kunci MISTERI:
    M I S T E
@@ -79,13 +80,17 @@ Dipakai untuk belajar, bukan untuk melindungi data nyata.</pre></div>
 function H(s){let a=0xdeadbeef,b=0x41c6ce57;s='ctc:'+s;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}
 a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return(4294967296*(2097151&b)+(a>>>0)).toString(16)}
 const KEY=new PF('MISTERI');
+const deskNav=$('deskNav');
+const setDeskNav=()=>{let open=false;try{open=sessionStorage.getItem('pf-desk-unlocked')==='1'}catch(e){}deskNav.textContent=open?'Meja sandi':'Meja sandi 🔒'};
+setDeskNav();
+if(new URLSearchParams(location.search).get('locked')==='meja'){$('gateMessage').hidden=false;$('gateMessage').textContent='Meja Sandi masih terkunci. Selesaikan dulu keenam ruangan dan buka semua gembok.'}
 const ROOMS=[
 {t:'Ruang Gelap',d:'Gelap gulita. Di atas meja, selembar kertas terselip di bawah mesin tik yang masih hangat.',c:'GDSNPZ',h:'bbee43f530445',hi:['Pisahkan ciphertext menjadi GD · SN · PZ. Dekripsikan satu pasangan setiap kali.','GD tidak satu baris atau kolom. Gunakan aturan persegi: ambil sudut lain pada baris yang sama.','GD menjadi LA. Terapkan cara yang sama pada SN dan PZ; X terakhir adalah huruf pengisi.'],n:'Lampu menyala. Sebuah gramofon berderak hidup dan suara Pak Misteri berbisik, "Kalau kau mendengar ini, berarti pesanku masih bisa dibaca."'},
 {t:'Ruang Kerja',d:'Di ruang kerja, rak-rak penuh buku menutupi dinding. Satu laci meja terkunci oleh pesan sandi.',c:'DPLQIMABPS',h:'38e6e81eb8fba',hi:['Pecah ciphertext menjadi DP · LQ · IM · AB · PS.','DP dan LQ memakai aturan persegi. IM dan AB satu baris; PS satu kolom. Saat dekripsi, baris bergerak ke kiri dan kolom ke atas.','DP menjadi BU dan LQ menjadi KU. Lanjutkan tiga pasangan lainnya.'],n:'Di dalam buku terselip peta dengan tanda silang merah. Di baliknya ada tulisan: "Ia menyimpan jalan ke rahasia berikutnya."'},
 {t:'Ruang Tersembunyi',d:'Peta menunjuk ke balik dinding. Dari celah bata terdengar detak jam yang jauh lebih cepat.',c:'GQICHY',h:'113be689dace2e',hi:['Pecah ciphertext menjadi GQ · IC · HY.','GQ membentuk persegi, IC membentuk persegi, sedangkan H dan Y membentuk persegi. Tukar kolom masing-masing pasangan.','GQ menjadi KO. Dekripsikan IC dan HY dengan aturan yang sama; X terakhir adalah pengisi.'],n:'Kotak kayu terbuka. Di dalamnya ada catatan berdebu tentang cermin tua yang konon menyimpan pesan di balik pantulannya.'},
 {t:'Ruang Cermin',d:'Cermin tinggi memenuhi dinding. Di permukaannya muncul kata-kata yang tidak terlihat saat kamu membelakangi kaca.',c:'DTFRMO',h:'54040f63ea4ed',hi:['Pecah ciphertext menjadi DT · FR · MO.','DT dan MO membentuk persegi; FR berada di kolom yang sama. Untuk persegi, tukar kolom; untuk kolom, geser ke atas.','DT menjadi CE. Selesaikan FR dan MO, lalu gabungkan hasilnya.'],n:'Pantulan menunjukkan arah kompas yang tersembunyi di bawah bingkai. Jarum kompas bergerak menunjuk ke pintu keluar.'},
 {t:'Ruang Kompas',d:'Jarum kompas bergetar menunjuk ke utara. Tepat di sana ada pintu besi dengan keypad.',c:'QEBABW',h:'3d8114e1043dc',hi:['Pecah ciphertext menjadi QE · BA · BW.','QE dan BW membentuk persegi. BA berada di satu baris, jadi saat dekripsi geser kedua huruf ke kiri.','QE menjadi UT. Dekripsikan BA dan BW untuk melengkapi kata arah.'],n:'Keypad berbunyi. Pintu besi terbuka, tetapi sebuah gembok tua masih menahan pintu terakhir.'},
-{t:'Pintu Keluar',d:'Pesan terakhir terukir di keypad. Jam berhenti berdetak untuk sesaat.',c:'DSCBBS',h:'133f402f178ac8',hi:['Pecah ciphertext menjadi DS · CB · BS.','DS membentuk persegi, CB satu baris, dan BS satu kolom. Gunakan aturan dekripsi untuk tiap pasangan.','DS menjadi BE. Dekripsikan CB dan BS; X terakhir adalah huruf pengisi.'] ,n:'Gembok terbuka. Sebuah meja tulis rahasia menunggumu. Pilih kunci dan pesanmu sendiri, lalu buktikan kamu bisa mengenkripsinya.'}];
+{t:'Pintu Keluar',d:'Pesan terakhir terukir di keypad. Jam berhenti berdetak untuk sesaat.',c:'DSCBBS',h:'133f402f178ac8',hi:['Pecah ciphertext menjadi DS · CB · BS.','DS membentuk persegi, CB satu baris, dan BS satu kolom. Gunakan aturan dekripsi untuk tiap pasangan.','DS menjadi BE. Dekripsikan CB dan BS; X terakhir adalah huruf pengisi.'] ,n:'Semua gembok terbuka. Suara Pak Misteri terdengar jelas: "Keluargaku pasti mengira aku hilang. Aku harus memberi tahu mereka bahwa aku aman. Pesannya sudah kutulis; sekarang sandikan di meja tulis."'}];
 let cur=0,hi=0,used=0,t0=0,tick=null,lock=false,got=[];
 const log=(m,c)=>{const p=document.createElement('p');p.textContent=m;if(c)p.className=c;$('log').appendChild(p);$('log').scrollTop=1e9};
 const secs=()=>Math.floor((Date.now()-t0)/1000);
@@ -95,7 +100,7 @@ function progress(active){$('prog').innerHTML=Array.from({length:ROOMS.length},(
 function load(){hi=0;lock=false;const r=ROOMS[cur];$('ct').textContent=r.c;$('rt').textContent='Ruangan '+(cur+1)+': '+r.t;$('ans').value='';$('fb').textContent='';$('hb').textContent='';hintUI();progress(cur);
 log(r.t+': '+r.d);$('ans').focus()}
 function begin(){cur=0;used=0;got=[];t0=Date.now();clearInterval(tick);tick=setInterval(()=>$('timer').textContent='Waktu '+clock(),1000);
-try{sessionStorage.removeItem('pf-game-result')}catch(e){}
+try{sessionStorage.removeItem('pf-game-result');sessionStorage.removeItem('pf-desk-unlocked')}catch(e){}setDeskNav();
 $('intro').hidden=true;$('game').hidden=false;$('log').innerHTML='';mx('gm',KEY);load()}
 const gd=$('gd');let seen=0,pend=0;
 const openG=()=>{$('gclose').textContent=pend?'Mengerti, mulai misi':'Tutup';gd.showModal()};
@@ -104,7 +109,7 @@ $('pbtn').onclick=$('pb0').onclick=$('pb2').onclick=openG;
 $('gclose').onclick=()=>gd.close();
 gd.addEventListener('close',()=>{if(pend){pend=0;begin()}});
 gd.addEventListener('click',e=>{if(e.target===gd)gd.close()});
-function sendToDesk(){clearInterval(tick);const result={code:got.map(x=>x[0]).join(''),startedAt:t0,hints:used};try{sessionStorage.setItem('pf-game-result',JSON.stringify(result))}catch(e){}location.href='kirim.html?challenge=1'}
+function sendToDesk(){clearInterval(tick);const result={code:got.map(x=>x[0]).join(''),startedAt:t0,hints:used};try{sessionStorage.setItem('pf-game-result',JSON.stringify(result));sessionStorage.setItem('pf-desk-unlocked','1')}catch(e){}setDeskNav();location.href='kirim.html?challenge=1'}
 function submit(){if(lock)return;const a=norm($('ans').value),f=$('fb'),r=ROOMS[cur];
 if(!a){f.className='err';f.textContent='Jawaban kosong. Dekripsikan pesan dulu.';return}
 if(H(a)===r.h||H(a.replace(/X$/,''))===r.h){f.className='err ok';f.textContent='Gembok terbuka.';lock=true;got.push(a.replace(/X$/,''));

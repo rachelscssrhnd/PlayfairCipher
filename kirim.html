@@ -10,19 +10,24 @@
 <main>
 <nav><a href="index.html">Ruang rahasia</a><a href="kirim.html" class="on" aria-current="page">Meja sandi</a><a href="terima.html">Kotak pos</a></nav>
 <header><h1>Meja Sandi</h1>
-<p class="sub">Pilih kunci, buat grid, lalu enkripsikan pesanmu sendiri.</p></header>
+<p class="sub">Bantu Pak Misteri menyandikan pesan untuk keluarganya.</p></header>
 
 <section id="kirim" style="margin-top:30px">
-<div class="paper" id="challenge">
-<h2>Tantangan balasan Pak Misteri</h2>
-<div class="story-card"><p id="mission">Pak Misteri meminta satu surat untuk keluarganya. Pilih kata kunci untuk menyusun grid, tulis pesanmu sendiri, lalu enkripsikan dengan tangan. Checker baru menampilkan ciphertext setelah semua pasangan huruf benar.</p></div>
+<div class="paper" id="locked" hidden>
+<h2>Meja Sandi masih terkunci</h2>
+<p>Selesaikan enam ruangan dan buka semua gembok di <a href="index.html">Ruang Rahasia</a> untuk menemukan pesan Pak Misteri.</p>
+</div>
+<div class="paper" id="challenge" hidden>
+<h2>Pesan terakhir Pak Misteri</h2>
+<div class="story-card"><p id="mission">Semua gembok rumah telah terbuka. Pak Misteri meminta bantuanmu mengirim kabar kepada keluarganya.</p></div>
+<label for="sp">Pesan dari Pak Misteri</label>
+<textarea id="sp" readonly spellcheck="false">AKU AMAN</textarea>
+<p class="field-note">Ini pesan yang harus kamu sandikan. Pilih kata kunci sendiri untuk membuat grid baru.</p>
 <label for="sk">Kata kunci grid (pilih sendiri)</label>
 <input id="sk" placeholder="Contoh: RAHASIA" autocomplete="off" spellcheck="false">
 <p class="field-note">Grid dibuat otomatis dari kata kunci: huruf berulang dihapus dan I/J berbagi satu kotak.</p>
 <div class="mx" id="sm" aria-label="Grid Playfair pilihanmu"></div>
-<label for="sp">Pesan yang ingin kamu kirim</label>
-<textarea id="sp" placeholder="Contoh: KETEMU DI TAMAN" spellcheck="false"></textarea>
-<p class="field-note">Spasi dan tanda baca diabaikan. Pesan dinormalkan lalu ditampilkan sebagai pasangan agar kamu bisa mengerjakannya.</p>
+<p class="field-note">Pasangan mengikuti aturan Playfair. X di akhir ditambahkan karena “AKU AMAN” memiliki jumlah huruf ganjil.</p>
 <label>Pasangan huruf yang perlu dienkripsi</label><div class="out" id="sd">Tulis pesan untuk melihat pasangan huruf.</div>
 <label for="answerCipher">Hasil enkripsi yang kamu hitung</label>
 <input id="answerCipher" autocomplete="off" spellcheck="false" placeholder="Ketik ciphertext tanpa spasi">
@@ -73,8 +78,10 @@ Dipakai untuk belajar, bukan untuk melindungi data nyata.</pre></div></details>
 <script src="shared.js"></script>
 <script>
 let pf=null, gameResult=null, verifiedCipher='';
-try{gameResult=JSON.parse(sessionStorage.getItem('pf-game-result')||'null')}catch(e){}
-if(new URLSearchParams(location.search).get('challenge')==='1'&&gameResult){$('mission').textContent='Enam pesan berhasil kamu pecahkan. Pak Misteri kini meminta surat untuk keluarganya. Pilih kunci dan isi pesanmu sendiri; enkripsikan dengan tangan agar checker membuka Kotak Pos.'}
+let unlocked=false;
+try{gameResult=JSON.parse(sessionStorage.getItem('pf-game-result')||'null');unlocked=sessionStorage.getItem('pf-desk-unlocked')==='1'}catch(e){}
+if(unlocked){$('challenge').hidden=false;if(gameResult)$('mission').textContent='Kau berhasil membuka semua ruangan. Pak Misteri perlu memberi kabar kepada keluarganya bahwa ia aman. Buat grid dengan kunci pilihanmu, lalu enkripsikan pesan yang ia titipkan.'}
+else $('locked').hidden=false;
 function prepareView(){if(!pf){$('sd').textContent='Masukkan kata kunci dan pesan untuk melihat pasangan.';return}
 const p=pf.prepare($('sp').value);$('sd').textContent=p?p.match(/../g).join(' · '):'Pesan harus berisi huruf.'}
 function updateKey(){if(!norm($('sk').value)){pf=null;mx('sm');$('feedback').textContent='';prepareView();return false}
@@ -82,12 +89,12 @@ try{pf=new PF($('sk').value);mx('sm',pf);$('feedback').textContent='';prepareVie
 catch(e){pf=null;mx('sm');$('feedback').textContent=e.message;prepareView();return false}}
 $('sk').addEventListener('input',updateKey);$('sp').addEventListener('input',prepareView);
 const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-function complete(cipher){verifiedCipher=cipher;$('challenge').hidden=true;$('success').hidden=false;$('so').textContent=cipher;
+function complete(cipher){verifiedCipher=cipher;try{sessionStorage.setItem('pf-verified-cipher',cipher)}catch(e){}$('challenge').hidden=true;$('success').hidden=false;$('so').textContent=cipher;
 if(gameResult){const elapsed=Math.floor((Date.now()-gameResult.startedAt)/1000);$('gameResult').hidden=false;$('xc').textContent=gameResult.code;$('wt').textContent=fmt(elapsed);$('wh').textContent=gameResult.hints;
 let best=null;try{best=+localStorage.getItem('pf-best')||null}catch(e){}const isBest=!best||elapsed<best;if(isBest){try{localStorage.setItem('pf-best',elapsed)}catch(e){}best=elapsed}$('wb').textContent=(isBest?'Rekor baru! ':'')+'Waktu terbaik di perangkat ini: '+fmt(best);
-$('successStory').textContent='Suara jam berhenti. Pak Misteri membuka ruang surat keluarganya. "Kamu bukan hanya membaca pesanku; kamu juga menulis balasan dengan sandimu sendiri."';try{sessionStorage.removeItem('pf-game-result')}catch(e){}}
+$('successStory').textContent='Suara jam berhenti. Pak Misteri membuka ruang surat keluarganya. "Kau berhasil membantuku mengabari mereka bahwa aku aman."';try{sessionStorage.removeItem('pf-game-result')}catch(e){}}
 }
-$('check').onclick=()=>{if(!updateKey()){$('feedback').textContent='Pilih kata kunci untuk membuat grid dulu.';return}const message=norm($('sp').value);if(!message){$('feedback').textContent='Tulis pesan yang ingin kamu sampaikan dulu.';return}
+$('check').onclick=()=>{if(!unlocked){$('feedback').textContent='Selesaikan semua ruangan untuk membuka Meja Sandi.';return}if(!updateKey()){$('feedback').textContent='Pilih kata kunci untuk membuat grid dulu.';return}const message=norm($('sp').value);if(!message){$('feedback').textContent='Pesan Pak Misteri belum tersedia.';return}
 let expected;try{expected=pf.encrypt($('sp').value)}catch(e){$('feedback').textContent=e.message;return}
 const actual=norm($('answerCipher').value),expectedPairs=expected.match(/../g)||[],actualPairs=actual.match(/../g)||[];
 if(actual===expected){$('feedback').textContent='Semua pasangan cocok. Surat berhasil dienkripsi.';complete(expected);return}
@@ -98,7 +105,7 @@ let hint=0;const hints=[()=>{const p=pf&&pf.prepare($('sp').value);return p?'Pas
 function showHint(){const m=hint<hints.length?'Langkah '+(hint+1)+' dari '+hints.length+': '+hints[hint](): 'Petunjuk habis. Gunakan grid dan checker pasangan.';if(hint<hints.length)hint++;$('hintbox').textContent=m;$('hint').textContent='Petunjuk langkah ('+(hints.length-hint)+')'}
 $('hint').onclick=showHint;
 $('sendKotak').onclick=()=>{location.href='terima.html?mode=send#pesan='+verifiedCipher};
-updateKey();
+if(unlocked)updateKey();
 </script>
 </body>
 </html>
