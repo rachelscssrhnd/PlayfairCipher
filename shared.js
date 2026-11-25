@@ -13,7 +13,11 @@ encrypt(t){const p=this.prepare(t);if(!p)throw new Error('Pesan harus berisi min
 decrypt(t){const c=norm(t);if(!c)throw new Error('Ciphertext kosong.');if(c.length%2)throw new Error('Ciphertext tidak valid: jumlah huruf harus genap.');
 for(let i=0;i<c.length;i+=2)if(c[i]===c[i+1])throw new Error('Ciphertext tidak valid: ada pasangan huruf kembar ('+c[i]+c[i+1]+').');
 return this.tr(c,-1)}}
-const clean=s=>{let o='';for(let i=0;i<s.length;i++){if(s[i]==='X'&&i>0&&i<s.length-1&&s[i-1]===s[i+1])continue;o+=s[i]}return o.replace(/X$/,'')};
+const clean=s=>{let o='';for(let i=0;i<s.length;i++){
+const fillerX=s[i]==='X'&&i>0&&i<s.length-1&&s[i-1]===s[i+1];
+const fillerQ=s[i]==='Q'&&i>0&&i<s.length-1&&s[i-1]==='X'&&s[i+1]==='X';
+if(!fillerX&&!fillerQ)o+=s[i]}
+if(o.endsWith('X'))o=o.slice(0,-1);else if(o.endsWith('Q')&&o[o.length-2]==='X')o=o.slice(0,-1);return o};
 function mx(id,pf){const e=$(id);e.innerHTML='';if(!pf)return;pf.m.forEach(r=>r.forEach(h=>{const s=document.createElement('span');s.textContent=h;e.appendChild(s)}))}
 function copy(t,btn){const done=()=>{const o=btn.textContent;btn.textContent='Tersalin';setTimeout(()=>btn.textContent=o,1200)};
 if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,()=>fb(t,done));else fb(t,done)}

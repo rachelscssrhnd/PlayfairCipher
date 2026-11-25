@@ -44,6 +44,10 @@ button.alt{background:transparent;color:var(--brass);border:1px solid var(--bras
 .book{background:#241a12;border:1px solid var(--bd);padding:16px 20px;background-image:repeating-linear-gradient(transparent 0 26px,rgba(200,162,74,.12) 26px 27px)}
 pre{white-space:pre-wrap;font:15px/27px "Courier New",monospace;color:#e6dcc6}
 .hintbox{margin-top:12px;padding:8px 12px;border-left:3px solid var(--brass);background:rgba(200,162,74,.14);color:#f0c36a}.hintbox:empty{display:none}.nv{background:none;border:0;color:var(--brass);text-decoration:underline;padding:0;margin:0;font:inherit;cursor:pointer}.nv:hover{background:none;color:#fff}
+.field-note{color:#a99f88;font-size:14px;margin-top:5px}
+.story-card{margin:12px 0;padding:12px 14px;background:rgba(0,0,0,.22);border-left:3px solid var(--wax);color:var(--tx)}
+.story-card p{margin:0}
+.pair .note{min-height:90px}
 dialog{margin:auto;max-width:640px;width:calc(100% - 24px);max-height:86vh;overflow:auto;background:#241a12;color:var(--tx);border:6px solid var(--wood);outline:2px solid var(--brass);padding:18px 20px}
 dialog::backdrop{background:rgba(5,7,12,.82)}dialog h2{color:#f3e7c9}dialog ol{padding-left:22px;margin-bottom:10px}
 #share,#inc{display:none}
