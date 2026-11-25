@@ -3,42 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kotak pos - Playfair</title>
+<title>Kotak Pos - Rumah di Jalan Misteri</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<nav><a href="index.html">Ruang rahasia</a><a href="kirim.html">Meja sandi</a><a href="terima.html" class="on" aria-current="page">Kotak pos</a></nav>
+<nav><a href="index.html">Ruang Rahasia</a><a href="kirim.html">Meja Tulis</a><a href="terima.html" class="on" aria-current="page">Kotak Pos</a></nav>
 <header><h1>Kotak Pos</h1>
-<p class="sub">Kirim pesan yang sudah kamu enkripsikan dan periksa di Meja Sandi.</p></header>
+<p class="sub">Checker cerita: apakah penerima berhasil membaca ciphertext-mu?</p></header>
 
 <section style="margin-top:30px">
 <div class="paper" id="waiting" hidden>
-<h2>Belum ada surat untuk dikirim</h2>
-<p>Kotak Pos hanya menerima ciphertext yang sudah lolos checker. Selesaikan Ruang Rahasia, enkripsikan pesan Pak Misteri di <a href="kirim.html">Meja Sandi</a>, lalu tekan tombol kirim.</p>
+<h2>Kotak Pos masih menunggu surat</h2>
+<p>Selesaikan semua ruangan, hitung ciphertext pesan Pak Misteri di <a href="kirim.html">Meja Tulis</a>, lalu masukkan hasilnya ke sini untuk mendapat balasan penerima.</p>
 </div>
-<div class="paper" id="outbox" hidden>
-<h2>Surat siap dikirim</h2>
-<p>Ini ciphertext yang kamu hitung dan checker-nya nyatakan benar.</p>
-<label>Ciphertext terverifikasi</label><div class="out" id="outCipher"></div>
-<label for="shareUrl">Link untuk penerima</label><input id="shareUrl" readonly style="text-transform:none;letter-spacing:0">
-<button id="copyLink">Salin link surat</button>
-<p class="field-note">Kirim link ini kepada pemain lain. Beri tahu kata kunci grid secara terpisah agar mereka bisa membuka surat.</p>
-<p><a href="index.html">Kembali ke Ruang Rahasia</a></p>
+<div class="paper" id="failure" hidden>
+<h2>Balasan dari seberang</h2>
+<div class="story-card"><p id="failureLetter"></p></div>
+<label>Ciphertext yang kamu kirim</label><div class="out" id="failedCipher"></div>
+<p>Suratnya sampai, tetapi belum bisa dibaca. Kembali ke Meja Tulis dan cek lagi cara mengubah setiap pasangan.</p>
+<a class="button-link" href="kirim.html?retry=1">Coba hitung lagi</a>
+</div>
+<div class="paper" id="success" hidden>
+<h2>Balasan dari seberang</h2>
+<div class="story-card"><p id="successLetter"></p></div>
+<label>Ciphertext yang berhasil dipecahkan</label><div class="out" id="successCipher"></div>
+<div id="gameResult" hidden>
+<p>Kode keluar rumah: <b class="xc" id="xc"></b></p>
+<p>Waktu permainan: <b id="wt"></b>. Petunjuk langkah dipakai: <b id="wh"></b>.</p>
+<p class="best" id="wb"></p>
+</div>
+<p>Pak Misteri mendengar balasan itu dari ujung lorong. Semua pesan rumah kini terbaca.</p>
+<a class="button-link" href="index.html">Kembali ke Ruang Rahasia</a>
 </div>
 </section>
 </main>
 <script src="shared.js"></script>
 <script>
-const params=new URLSearchParams(location.search);
-const match=location.hash.match(/^#pesan=([A-Za-z]+)$/);
-let saved='';try{saved=sessionStorage.getItem('pf-verified-cipher')||''}catch(e){}
-if(params.get('mode')==='send'&&match&&saved===match[1].toUpperCase()){
-  $('outbox').hidden=false;
-  $('outCipher').textContent=saved;
-  $('shareUrl').value=new URL('buka.html',location.href).href+'#pesan='+saved;
-  $('copyLink').onclick=e=>copy($('shareUrl').value,e.target);
-}else $('waiting').hidden=false;
+let attempt=null;
+try{attempt=JSON.parse(sessionStorage.getItem('pf-letter-attempt')||'null')}catch(e){}
+const requested=new URLSearchParams(location.search).get('check')==='1';
+if(!requested||!attempt){$('waiting').hidden=false}
+else{
+  let expected='',validKey=false;
+  try{const pf=new PF(attempt.key);expected=pf.encrypt(attempt.plain);validKey=true}catch(e){}
+  const success=validKey&&norm(attempt.cipher)===expected;
+  if(success){
+    $('success').hidden=false;
+    $('successCipher').textContent=norm(attempt.cipher);
+    $('successLetter').textContent='Kami berhasil memecahkan kodemu. Pesanmu berbunyi “AKU AMAN”. Terima kasih sudah memberi kabar; kami menunggumu pulang.';
+    if(attempt.gameResult){
+      const elapsed=Math.floor((Date.now()-attempt.gameResult.startedAt)/1000);
+      const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+      $('gameResult').hidden=false;$('xc').textContent=attempt.gameResult.code;$('wt').textContent=fmt(elapsed);$('wh').textContent=attempt.gameResult.hints;
+      let best=null;try{best=+localStorage.getItem('pf-best')||null}catch(e){}
+      const isBest=!best||elapsed<best;if(isBest){try{localStorage.setItem('pf-best',elapsed)}catch(e){}best=elapsed}
+      $('wb').textContent=(isBest?'Rekor baru! ':'')+'Waktu terbaik di perangkat ini: '+fmt(best);
+    }
+  }else{
+    $('failure').hidden=false;
+    $('failedCipher').textContent=norm(attempt.cipher)||'(kosong)';
+    $('failureLetter').textContent='Aku sudah menerima sandimu, tetapi belum berhasil memecahkan kodemu. Mungkin ada pasangan huruf yang tertukar. Bisakah kamu memeriksanya lalu mengirim lagi?';
+  }
+}
 </script>
 </body>
 </html>

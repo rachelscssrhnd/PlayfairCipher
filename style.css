@@ -50,10 +50,23 @@ pre{white-space:pre-wrap;font:15px/27px "Courier New",monospace;color:#e6dcc6}
 .pair .note{min-height:90px}
 dialog{margin:auto;max-width:640px;width:calc(100% - 24px);max-height:86vh;overflow:auto;background:#241a12;color:var(--tx);border:6px solid var(--wood);outline:2px solid var(--brass);padding:18px 20px}
 dialog::backdrop{background:rgba(5,7,12,.82)}dialog h2{color:#f3e7c9}dialog ol{padding-left:22px;margin-bottom:10px}
-#share,#inc{display:none}
-#inc.show{display:block}
 nav a.on{color:#fff;border-bottom:2px solid var(--brass)}
 details{margin-top:16px}summary{cursor:pointer;color:#5a4511}
 .xc{font:700 26px 'Courier New',monospace;letter-spacing:.3em;color:#f3e7c9}
 .best{color:#a99f88;font-size:15px}
 .mx{width:max-content;max-width:100%}
+.button-link{display:inline-block;margin-top:14px;padding:7px 14px;background:var(--brass);color:#241a08;text-decoration:none;border-radius:3px;border-bottom:3px solid var(--bd)}.button-link:hover{background:#e2bd62;color:#241a08}
+#guideGrid{display:grid;grid-template-columns:repeat(5,minmax(30px,1fr));gap:3px;width:min(100%,280px);margin:8px 0}
+#guideGrid span{display:grid;place-items:center;aspect-ratio:1;background:#34303a;color:#f3e7c9;font:500 18px "Courier New",monospace;border-radius:3px}
+#guideGrid span.guide-source{background:#6c5422}
+#guideGrid span.guide-result{background:#7c3737}
+#guideGrid span.guide-both{background:#765d5e}
+.guide-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
+.guide-legend span{display:inline-flex;align-items:center;gap:6px}
+.guide-swatch{width:14px;height:14px;border-radius:2px;background:#6c5422}.guide-swatch.result{background:#7c3737}
+.guide-layout{display:grid;grid-template-columns:minmax(190px,.8fr) minmax(230px,1.2fr);gap:18px;align-items:start;margin:12px 0}
+.guide-work{display:grid;gap:10px}.guide-pair{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.guide-pair strong{display:inline-grid;place-items:center;min-width:42px;min-height:42px;background:#4b3b28;color:#f3e7c9;font:700 21px "Courier New",monospace}
+.guide-controls{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.guide-result{min-height:1.5em;color:#f0c36a}
+@media(max-width:560px){.guide-layout{grid-template-columns:1fr}}
